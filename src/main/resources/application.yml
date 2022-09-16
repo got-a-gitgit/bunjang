@@ -1,0 +1,7 @@
+### Default ###
+spring:
+  application:
+    name: demo
+
+  profiles:
+    active: dev
