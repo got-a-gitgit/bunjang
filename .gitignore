@@ -1,3 +1,8 @@
+# Package Files #
+*.jar
+*.war
+*.ear
+
 # Gradle
 .gradle
 build/
@@ -8,10 +13,6 @@ gradle-app.setting
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
 
-# Package Files #
-*.jar
-*.war
-*.ear
 
 ### JetBrains template
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
@@ -79,7 +80,7 @@ buildNumber.properties
 
 # "temporary" build files
 /target
-
+/logs
 
 
 # ignore secret
@@ -89,4 +90,5 @@ buildNumber.properties
 /src/main/resources/application-dev.yml
 /src/main/resources/application-local.yml
 /src/main/resources/application-prod.yml
+
 
