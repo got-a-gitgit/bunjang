@@ -19,22 +19,12 @@ import static com.example.demo.config.BaseResponseStatus.USER_INVALID_AUTH;
 @RequestMapping("/users")
 public class UserController {
 
-    @Autowired
-    private final UserProvider userProvider;
-
-    @Autowired
     private final UserService userService;
-
-    @Autowired
-    private final JwtService jwtService;
-
-    @Autowired
     private final MailService mailService;
 
-    public UserController(UserProvider userProvider, UserService userService, JwtService jwtService, MailService mailService) {
-        this.userProvider = userProvider;
+    @Autowired
+    public UserController(UserService userService, MailService mailService) {
         this.userService = userService;
-        this.jwtService = jwtService;
         this.mailService = mailService;
     }
 
