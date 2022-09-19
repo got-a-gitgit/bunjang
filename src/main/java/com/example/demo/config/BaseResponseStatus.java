@@ -29,8 +29,7 @@ public enum BaseResponseStatus {
 
 
     // [POST] /users
-    USERS_EMPTY_EMAIL(false, 2010, "이메일을 입력하세요."),
-
+    USER_INVALID_AUTH(false, 2010, "유효한 인증이 아닙니다."),
 
 
 
@@ -42,6 +41,7 @@ public enum BaseResponseStatus {
     RESPONSE_ERROR(false, 3000, "값을 불러오는데 실패하였습니다."),
 
     // [POST] /users
+    FAIL_EMAIL_LOGIN(false, 3010, "이메일 로그인에 실패했습니다."),
     DUPLICATED_EMAIL(false, 3013, "중복된 이메일입니다."),
     INACTIVATE_USER(false, 3016, "비활성화된 회원입니다."),
 
@@ -61,10 +61,12 @@ public enum BaseResponseStatus {
 
 
     /**
-     * 5000 : 소셜 로그인 오류
+     * 5000 : 서드 파티 오류?
      */
     FAIL_SOCIAL_LOGIN(false, 5000, "소셜 로그인에 실패했습니다."),
-    KAKAO_GET_USERINFO_FAIL(false, 5101, "카카오 사용자 정보 조회에 실패했습니다.");
+    KAKAO_GET_USERINFO_FAIL(false, 5101, "카카오 사용자 정보 조회에 실패했습니다."),
+
+    FAIL_SEND_CERTCODE(false, 5200, "인증메일 발송에 실패했습니다.");
 
 
     // 6000 : 필요시 만들어서 쓰세요
