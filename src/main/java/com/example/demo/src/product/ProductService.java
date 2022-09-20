@@ -48,7 +48,7 @@ public class ProductService {
             int updatedRowsNumber = productDao.createProductTags(productId, tagIds);
 
             //상품 이미지 등록
-//            int updatedImagesNum = productDao.createProductImages(productId, productImages);
+            int updatedImagesNum = productDao.createProductImages(productId, productImages);
 
             return new PostProductRes(productId);
         } catch (Exception exception) {

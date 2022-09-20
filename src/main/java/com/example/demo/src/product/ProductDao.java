@@ -109,16 +109,14 @@ public class ProductDao {
 
 
     public int createProductImages(int productId, List<String> productImages) {
-        String query = "INSERT INTO product_imgage (product_id, url) VALUES (?,?) ";
+        String query = "INSERT INTO product_image (product_id, url) VALUES (?,?) ";
 
         return this.jdbcTemplate.batchUpdate(query, new BatchPreparedStatementSetter() {
-
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 ps.setInt(1, productId);
                 ps.setString(2, productImages.get(i));
             }
-
             @Override
             public int getBatchSize() {
                 return productImages.size();
