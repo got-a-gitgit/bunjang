@@ -6,14 +6,15 @@ import com.example.demo.src.user.model.PostEmailReq;
 import com.example.demo.src.user.model.PostLoginReq;
 import com.example.demo.src.user.model.PostLoginRes;
 import com.example.demo.src.user.model.PostTokenReq;
-import com.example.demo.utils.JwtService;
 import com.example.demo.utils.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import static com.example.demo.config.BaseResponseStatus.USER_INVALID_AUTH;
+import java.util.Random;
+
+import static com.example.demo.config.BaseResponseStatus.INVALID_EMAIL_AUTH;
 
 @RestController
 @RequestMapping("/users")
@@ -37,7 +38,12 @@ public class UserController {
     @PostMapping("/confirmed")
     public BaseResponse<String> sendCertEmail(@RequestBody @Valid PostEmailReq userEmail) throws BaseException {
         String email = userEmail.getEmail();
-        String code = mailService.sendCodeMail(email);
+
+        //인증번호(난수) 생성
+        Random random = new Random();
+        String code = String.valueOf(random.nextInt(888888) + 111111);
+
+        mailService.sendCodeMail(email, code);
 
         return new BaseResponse<>(code);
     }
@@ -58,7 +64,7 @@ public class UserController {
         if (isAuth){   // 인증코드가 검증된 경우
             loginRes = userService.loginByEmail(email);
         } else {
-          throw new BaseException(USER_INVALID_AUTH);   // 인증 검증 에러
+          throw new BaseException(INVALID_EMAIL_AUTH);   // 인증 검증 에러
         }
 
         return new BaseResponse<>(loginRes);
