@@ -8,68 +8,54 @@ import lombok.Getter;
 @Getter
 public enum BaseResponseStatus {
     /**
-     * 1000 : 요청 성공
+     * 2XX : 요청 성공
      */
-    SUCCESS_WITH_DATA(true, 1000, "요청에 성공하였습니다."),
-    SUCCESS_WITH_NO_DATA(true, 1001, "일치하는 데이터가 없습니다."),
-    DELETE_SUCCESS(true, 1010, "삭제되었습니다."),
-    UPDATE_SUCCESS(true, 1020, "수정되었습니다."),
+    SUCCESS_WITH_DATA(true, 200, "요청에 성공하였습니다."),
+    SUCCESS_WITH_NO_DATA(true, 204, "요청에 성공하였습니다."),
+    INSERT_SUCCESS(true, 201, "등록되었습니다."),
+    DELETE_SUCCESS(true, 202, "삭제되었습니다."),
+    UPDATE_SUCCESS(true, 203, "수정되었습니다."),
+
+
+    /**
+     * 3XX: 리다이렉션
+     */
+    // 공통
 
 
 
     /**
-     * 2000 : Request 오류
+     * 4XX : 클라이언트 에러
      */
-    // Common
-    REQUEST_ERROR(false, 2000, "잘못된 요청입니다."),
-    EMPTY_JWT(false, 2001, "JWT를 입력해주세요."),
-    INVALID_JWT(false, 2002, "유효하지 않은 JWT입니다."),
-    INVALID_USER_JWT(false,2003,"권한이 없는 회원의 접근입니다."),
-    INVALID_REQUEST(false, 2009, "데이터 유효성 검증 실패"),
+    // 공통
+    INVALID_REQUEST_FIELD(false, 400, ""),
+    RESPONSE_ERROR(false, 404, "존재하지 않는 리소스입니다."),
+
+    EMPTY_JWT(false, 401, "JWT를 입력해주세요."),
+    INVALID_JWT(false, 403, "유효하지 않은 JWT입니다."),
+
+    // User
+    INVALID_EMAIL_AUTH(false, 402, "유효한 인증이 아닙니다."),
+    FAIL_LOGIN(false, 407, "로그인에 실패했습니다."),
+
+    // 410-50 미치
 
 
-    // [POST] /users
-    USER_INVALID_AUTH(false, 2010, "유효한 인증이 아닙니다."),
-
-
+    // 451-499 조이
 
 
     /**
-     * 3000 : Response 오류
+     * 5XX : Server 에러
      */
-    // Common
-    RESPONSE_ERROR(false, 3000, "값을 불러오는데 실패하였습니다."),
+    DATABASE_ERROR(false, 500, "Database 오류"),
+    SERVER_ERROR(false, 503, "서버와 연결에 실패했습니다."),
+    FAIL_KAKAO_API(false, 512, "카카오 사용자 정보 조회에 실패했습니다."),
+    FAIL_SEND_AUTHMAIL(false, 513, "인증메일 발송에 실패했습니다.");
 
-    // [POST] /users
-    FAIL_EMAIL_LOGIN(false, 3010, "이메일 로그인에 실패했습니다."),
-    DUPLICATED_EMAIL(false, 3013, "중복된 이메일입니다."),
-    INACTIVATE_USER(false, 3016, "비활성화된 회원입니다."),
-
+    // 520-60 미치
 
 
-
-
-    /**
-     * 4000 : Database, Server 오류
-     */
-    DATABASE_ERROR(false, 4000, "DB 오류"),
-    SERVER_ERROR(false, 4001, "서버와의 연결에 실패했습니다."),
-
-    PASSWORD_ENCRYPTION_ERROR(false, 4011, "비밀번호 암호화에 실패했습니다."),
-    PASSWORD_DECRYPTION_ERROR(false, 4012, "비밀번호 복호화에 실패했습니다."),
-
-
-
-    /**
-     * 5000 : 서드 파티 오류?
-     */
-    FAIL_SOCIAL_LOGIN(false, 5000, "소셜 로그인에 실패했습니다."),
-    KAKAO_GET_USERINFO_FAIL(false, 5101, "카카오 사용자 정보 조회에 실패했습니다."),
-
-    FAIL_SEND_CERTCODE(false, 5200, "인증메일 발송에 실패했습니다.");
-
-
-    // 6000 : 필요시 만들어서 쓰세요
+    // 561-599 조이
 
 
     private final boolean isSuccess;

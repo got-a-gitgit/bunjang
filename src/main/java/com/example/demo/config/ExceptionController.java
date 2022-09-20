@@ -6,10 +6,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.demo.config.BaseResponse.validError;
+import static com.example.demo.config.BaseResponseStatus.INVALID_REQUEST_FIELD;
 
 
 @ControllerAdvice
@@ -22,25 +21,20 @@ public class ExceptionController {
     }
 
 
-
     @ExceptionHandler(BaseException.class)
     public BaseResponse handleBaseException(BaseException e){
         return new BaseResponse<>(e.getStatus());
     }
 
 
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public BaseResponse<List<validError>> handleValidException(MethodArgumentNotValidException e){
-
+    public BaseResponse handleValidException(MethodArgumentNotValidException e){
+        // @Valid 에러 목록
         List<FieldError> errors = e.getBindingResult().getFieldErrors();
-        List<validError> validErrors = new ArrayList<>();
+        // 첫번째 에러 메세지
+        String message = errors.get(0).getDefaultMessage();
 
-        for (FieldError error : errors){
-            validErrors.add(new validError(error.getField(), error.getDefaultMessage()));
-        }
-
-        return new BaseResponse<>(validErrors);
+        return new BaseResponse(INVALID_REQUEST_FIELD, message);
     }
 
 }
