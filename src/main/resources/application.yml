@@ -1,7 +1,7 @@
-### Default ###
+#### Default ###
 spring:
   application:
     name: demo
 
   profiles:
-    active: dev
+    active: local
