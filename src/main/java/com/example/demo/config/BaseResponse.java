@@ -29,6 +29,15 @@ public class BaseResponse<T> {
         this.result = result;
     }
 
+    // 등록/수정에 성공한 경우
+    public BaseResponse(T result ,BaseResponseStatus baseResponseStatus) {
+        this.isSuccess = baseResponseStatus.isSuccess();
+        this.code = baseResponseStatus.getCode();
+        this.message = baseResponseStatus.getMessage();
+        this.result = result;
+    }
+
+
 
     // 요청에 실패한 경우
     public BaseResponse(BaseResponseStatus status) {
