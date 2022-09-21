@@ -1,5 +1,6 @@
 package com.example.demo.src.product;
 
+import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.utils.S3Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,17 +48,16 @@ public class ProductController {
      */
     @ResponseBody
     @PostMapping("")
-    public BaseResponse<PostProductRes> createProduct(@RequestParam("images") List<MultipartFile> multipartFiles, @RequestParam("jsonBody") String jsonBody) throws JsonProcessingException {
+    public BaseResponse<PostProductRes> createProduct(@RequestParam(value = "images", required = true) List<MultipartFile> multipartFiles, @RequestParam(value = "jsonBody", required = true) String jsonBody) throws JsonProcessingException, BaseException {
         //jwt 인증
 
-        //validation
-
         //S3에 이미지 업로드 및 url 반환
+        if(multipartFiles.get(0).isEmpty()) throw new BaseException(INVALID_REQUEST_FIELD);
         List<String> iamgeUrls = s3Service.uploadImage(multipartFiles);
 
         //JSON 문자열 객체로 mapping
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new SimpleModule());
-        PostProductReq postProductReq = objectMapper.readValue(jsonBody, PostProductReq.class);
+        @Valid PostProductReq postProductReq = objectMapper.readValue(jsonBody, PostProductReq.class);
 
         //상품 등록
         try{

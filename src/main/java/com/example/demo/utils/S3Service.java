@@ -3,6 +3,7 @@ package com.example.demo.utils;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.example.demo.config.BaseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.example.demo.config.BaseResponseStatus.S3_UPLOAD_ERROR;
 
 @RequiredArgsConstructor
 @Service
@@ -34,7 +37,7 @@ public class S3Service {
     }
 
     /** 파일 업로드 (1개)**/
-    public String uploadImage(MultipartFile multipartFile) {
+    public String uploadImage(MultipartFile multipartFile) throws BaseException {
         String fileName = createFileName(multipartFile.getOriginalFilename());
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -44,18 +47,19 @@ public class S3Service {
         try {
             // 파일 업로드 후 URL 저장
             amazonS3.putObject(bucket, fileName, multipartFile.getInputStream(), objectMetadata);
-        } catch (IOException e){
+        } catch (Exception e){
             // 이미지 업로드 에러
+            throw new BaseException(S3_UPLOAD_ERROR);
         }
 
         return amazonS3.getUrl(bucket, fileName).toString();
     }
 
     /** 파일 업로드 (여러개)**/
-    public List<String> uploadImage(List<MultipartFile> multipartFile) {
+    public List<String> uploadImage(List<MultipartFile> multipartFile) throws BaseException {
         List<String> imageUrl = new ArrayList<>();
 
-        multipartFile.forEach(file -> {
+        for (MultipartFile file : multipartFile) {
             String fileName = createFileName(file.getOriginalFilename());
             // 파일 크기
             ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -66,10 +70,10 @@ public class S3Service {
                 // 파일 업로드 후 URL 저장
                 amazonS3.putObject(bucket, fileName, file.getInputStream(), objectMetadata);
                 imageUrl.add(amazonS3.getUrl(bucket, fileName).toString());
-            } catch (IOException e){
-                // 이미지 업로드 에러
+            } catch (Exception e) {
+                throw new BaseException(S3_UPLOAD_ERROR);
             }
-        });
+        }
 
         return imageUrl;
     }
