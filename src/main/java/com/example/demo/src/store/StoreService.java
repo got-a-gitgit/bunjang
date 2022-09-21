@@ -54,4 +54,30 @@ public class StoreService {
             throw new BaseException(INSERT_FAIL);
         }
     }
+
+    /** 상점 소개 편집 **/
+    public void modifyStoreProfile(int userId, PostStoreProfileReq storeProfile) throws BaseException {
+        // 가입된 유저인지 확인
+        int isUser = storeProvider.checkUserId(userId);
+        if (isUser == 0) {
+            throw new BaseException(INVALID_JWT);
+        }
+
+        // 가입된 유저인 경우, 상점 소개 수정
+        if (storeProfile.getProfileImageFile() != null){ // 프로필 이미지를 등록하는 경우
+            // 프로필 이미지 저장 후, URL 저장
+            String profileImageUrl = s3Service.uploadImage(storeProfile.getProfileImageFile());
+            storeProfile.setProfileImageUrl(profileImageUrl);
+        }
+
+        try {
+            // 상품 소개 수정
+            int result = storeDao.updateStoreProfile(userId, storeProfile);
+            if (result == 0) {  // 수정 실패
+                throw new BaseException(UPDATE_FAIL);
+            }
+        } catch (BaseException e){
+
+        }
+    }
 }
