@@ -47,7 +47,7 @@ public enum BaseResponseStatus {
 
 
     // 451-499 조이
-
+    EMPTY_IMAGE_ERROR(false, 452, "이미지가 입력되지 않았습니다"),
 
     /**
      * 5XX : Server 에러
@@ -55,13 +55,13 @@ public enum BaseResponseStatus {
     DATABASE_ERROR(false, 500, "Database 오류"),
     SERVER_ERROR(false, 503, "서버와 연결에 실패했습니다."),
     FAIL_KAKAO_API(false, 512, "카카오 사용자 정보 조회에 실패했습니다."),
-    FAIL_SEND_AUTHMAIL(false, 513, "인증메일 발송에 실패했습니다.");
+    FAIL_SEND_AUTHMAIL(false, 513, "인증메일 발송에 실패했습니다."),
 
     // 520-60 미치
 
 
     // 561-599 조이
-
+    S3_UPLOAD_ERROR(false, 561, "S3 업로드에 실패했습니다.");
 
     private final boolean isSuccess;
     private final int code;
