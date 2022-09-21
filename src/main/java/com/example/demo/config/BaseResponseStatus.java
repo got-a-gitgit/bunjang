@@ -43,6 +43,7 @@ public enum BaseResponseStatus {
     FAIL_LOGIN(false, 407, "로그인에 실패했습니다."),
 
     // 410-50 미치
+    DUPLICATE_STORE_NAME(false, 411, "사용 중인 상점명입니다."),
 
 
     // 451-499 조이

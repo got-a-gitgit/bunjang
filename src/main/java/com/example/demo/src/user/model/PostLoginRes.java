@@ -10,4 +10,5 @@ import lombok.Setter;
 public class PostLoginRes {
     private String jwt;
     private boolean created;
+    private String storeName;
 }

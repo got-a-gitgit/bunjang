@@ -10,4 +10,6 @@ import lombok.Setter;
 public class UserInfoRes {
     private int userId;
     private String snsFlag;
+    private String storeName;
+    private String status;
 }
