@@ -53,7 +53,7 @@ public class ProductController {
         int userId= jwtService.getUserId();
 
         //S3에 이미지 업로드 및 url 반환
-        if(multipartFiles.get(0).isEmpty()) throw new BaseException(INVALID_REQUEST_FIELD);
+        if(multipartFiles.get(0).isEmpty()) throw new BaseException(EMPTY_IMAGE_ERROR);
         List<String> iamgeUrls = s3Service.uploadImage(multipartFiles);
 
         //JSON 문자열 객체로 mapping
