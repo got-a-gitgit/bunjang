@@ -55,7 +55,7 @@ public class UserProvider {
 
         } catch (Exception e){
             logger.error("Kakao API Fail", e);
-            throw new BaseException(FAIL_SOCIAL_LOGIN);
+            throw new BaseException(INVALID_EMAIL_AUTH);
         }
     }
 }

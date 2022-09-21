@@ -5,15 +5,14 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.mail.Message;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.Random;
 
-import static com.example.demo.config.BaseResponseStatus.FAIL_SEND_CERTCODE;
+import static com.example.demo.config.BaseResponseStatus.FAIL_SEND_AUTHMAIL;
+
 
 @Service
 @RequiredArgsConstructor
@@ -23,11 +22,8 @@ public class MailService {
     final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final JavaMailSender emailSender;
 
-    // 인증코드 생성
-    private final String certCode = createCertCode();
-
     // 메일 내용 생성
-    public MimeMessage createMessage(String receiver) throws Exception {
+    public MimeMessage createMessage(String receiver, String certCode) throws Exception {
 
         MimeMessage message = emailSender.createMimeMessage();
 
@@ -55,37 +51,15 @@ public class MailService {
         return message;
     }
 
-    // 랜덤 인증 코드 생성
-    public String createCertCode(){
-
-        int certCodeLength = 6;
-
-        StringBuffer key = new StringBuffer();
-        Random random = new Random(System.currentTimeMillis());
-
-        int range = (int)Math.pow(10, certCodeLength);
-        int trim = (int)Math.pow(10, certCodeLength-1);
-        int result = random.nextInt(range) + trim;
-
-        if (result > range){
-            result = result = trim;
-        }
-
-        return String.valueOf(result);
-    }
-
-    @Async
-    public String sendCodeMail(String receiver) throws BaseException {
+    public void sendCodeMail(String receiver, String code) throws BaseException {
 
         try {
-            MimeMessage message = createMessage(receiver);
+            MimeMessage message = createMessage(receiver, code);
             emailSender.send(message);  // 메일 발송
         } catch (Exception e){
             logger.error("MailService Error", e);
-            throw new BaseException(FAIL_SEND_CERTCODE);
+            throw new BaseException(FAIL_SEND_AUTHMAIL);
         }
-
-        return certCode;
     }
 
 }

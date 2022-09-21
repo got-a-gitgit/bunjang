@@ -12,8 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.example.demo.config.BaseResponseStatus.FAIL_EMAIL_LOGIN;
-import static com.example.demo.config.BaseResponseStatus.FAIL_SOCIAL_LOGIN;
+import static com.example.demo.config.BaseResponseStatus.*;
 
 @Service
 public class UserService {
@@ -33,16 +32,9 @@ public class UserService {
     }
 
 
-    /** 로그인 승인 처리 **/
-    public PostLoginRes approvalUser(int userId, boolean created){
-        String jwt = jwtService.createJwt(userId);
-
-        return new PostLoginRes(jwt, created);
-    }
-
     /** 이메일로 로그인 **/
     @Transactional(rollbackFor = Exception.class)
-    public PostLoginRes loginByEmail(String email) throws BaseException{
+    public PostLoginRes loginByEmail(String email) throws BaseException {
         int userId;
         boolean isCreated;
 
@@ -62,9 +54,12 @@ public class UserService {
         // 로그인
         return approvalUser(userId, isCreated);
 
+        } catch (BaseException e){
+            throw new BaseException(e.getStatus());
+
         } catch (Exception e){
             logger.error("Email Login Fail", e);
-            throw new BaseException(FAIL_EMAIL_LOGIN);
+            throw new BaseException(FAIL_LOGIN);
         }
     }
 
@@ -105,12 +100,19 @@ public class UserService {
             // 로그인
             return approvalUser(userId, isCreated);
 
+        } catch (BaseException e) {
+            throw new BaseException(e.getStatus());
+
         } catch (Exception e) {
             logger.error("Kakao Login Fail", e);
-            throw new BaseException(FAIL_SOCIAL_LOGIN);
+            throw new BaseException(FAIL_LOGIN);
         }
     }
 
+    /** 로그인 승인 처리 **/
+    public PostLoginRes approvalUser(int userId, boolean created){
+        String jwt = jwtService.createJwt(userId);
 
-
+        return new PostLoginRes(jwt, created);
+    }
 }
