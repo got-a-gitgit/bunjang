@@ -43,11 +43,13 @@ public enum BaseResponseStatus {
     FAIL_LOGIN(false, 407, "로그인에 실패했습니다."),
 
     // 410-50 미치
+    DUPLICATE_STORE_NAME(false, 411, "사용 중인 상점명입니다."),
 
 
     // 451-499 조이
     EMPTY_IMAGE_ERROR(false, 452, "이미지가 입력되지 않았습니다"),
     NON_EXISTENT_PRODUCT(false, 453, "존재하지 않는 상품입니다."),
+
     /**
      * 5XX : Server 에러
      */

@@ -37,6 +37,7 @@ public class UserService {
     public PostLoginRes loginByEmail(String email) throws BaseException {
         int userId;
         boolean isCreated;
+        String storeName;
 
         try{
         // 등록된 유저인지 확인
@@ -46,13 +47,21 @@ public class UserService {
             // 회원가입
             userId = userDao.insertUser(email);
             isCreated = true;
-        } else {
+            storeName = null;
+        } else { // 등록 유저
+            if (userInfo.getStatus().equals("N")){ // 유저 활성화 상태 확인
+                // 비활성화 유저 상태 활성화
+                userDao.updateUserStatus(email, "Y");
+            }
+
+            // 유저 정보
             userId = userInfo.getUserId();
             isCreated = false;
+            storeName = userInfo.getStoreName();
         }
 
         // 로그인
-        return approvalUser(userId, isCreated);
+        return approvalUser(userId, isCreated, storeName);
 
         } catch (BaseException e){
             throw new BaseException(e.getStatus());
@@ -68,6 +77,7 @@ public class UserService {
     public PostLoginRes loginByKakao(String accessToken) throws BaseException{
         int userId;
         boolean isCreated;
+        String storeName;
 
         try{
             // accessToken을 이용하여 유저 정보 추출
@@ -82,23 +92,32 @@ public class UserService {
                 // 회원가입 및 sns 연동
                 userId = userDao.insertUser(email);
                 isCreated = true;
-                userDao.updateSNSFlag(userId);
+                userDao.updateSNSFlag(userId, "Y");
                 userDao.insertSNSInfo(userId, 1);
+                storeName = null;
 
             } else { // 등록 유저
-                userId = userInfo.getUserId();  // 유저 식별번호
+                if (userInfo.getStatus().equals("N")){ // 유저 활성화 상태 확인
+                    // 비활성화 유저 상태 활성화
+                    userDao.updateUserStatus(email, "Y");
+                }
+
+                // 유저 정보
+                userId = userInfo.getUserId();
                 isCreated = false;
+                storeName = userInfo.getStoreName();
+
                 char snsFlag = userInfo.getSnsFlag().charAt(0); // sns 연동 여부
 
                 // 이메일만 가입한 유저는 sns 연동 처리
                 if (snsFlag == 'N'){
-                    userDao.updateSNSFlag(userId);
+                    userDao.updateSNSFlag(userId, "Y");
                     userDao.insertSNSInfo(userId, 1);
                 }
             }
 
             // 로그인
-            return approvalUser(userId, isCreated);
+            return approvalUser(userId, isCreated, storeName);
 
         } catch (BaseException e) {
             throw new BaseException(e.getStatus());
@@ -110,9 +129,9 @@ public class UserService {
     }
 
     /** 로그인 승인 처리 **/
-    public PostLoginRes approvalUser(int userId, boolean created){
+    public PostLoginRes approvalUser(int userId, boolean created, String storeName){
         String jwt = jwtService.createJwt(userId);
 
-        return new PostLoginRes(jwt, created);
+        return new PostLoginRes(jwt, created, storeName);
     }
 }
