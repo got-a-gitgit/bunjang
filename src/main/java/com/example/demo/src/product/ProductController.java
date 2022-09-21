@@ -70,4 +70,25 @@ public class ProductController {
     }
 
 
+    /**
+     * 상품 삭제 API
+     * [DELETE] /products/:product-id
+     * @return BaseResponse<>
+     */
+    @ResponseBody
+    @DeleteMapping("/{product-id}")
+    public BaseResponse<PostProductRes> deleteProduct(@PathVariable("product-id") int productId) throws BaseException {
+        //jwt 인증
+        int userId= jwtService.getUserId();
+
+        //상품 삭제
+        try{
+            productService.deleteProduct(productId);
+            return new BaseResponse<>(DELETE_SUCCESS);
+        } catch(BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+
 }

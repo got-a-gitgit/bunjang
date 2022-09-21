@@ -36,6 +36,7 @@ public class ProductService {
     }
 
 
+    /** 상품 등록 **/
     public PostProductRes createProduct(PostProductReq postProductReq, List<String> productImages) throws BaseException {
         try{
             //상품 등록
@@ -51,6 +52,21 @@ public class ProductService {
             int updatedImagesNum = productDao.createProductImages(productId, productImages);
 
             return new PostProductRes(productId);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /** 상품 삭제 **/
+    public void deleteProduct(int productId) throws BaseException {
+        try {
+            //상품 삭제
+            int deletedRow = productDao.deleteProduct(productId);
+            if (deletedRow == 0) {
+                throw new BaseException(NON_EXISTENT_PRODUCT);
+            }
+        } catch (BaseException baseException) {
+            throw baseException;
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }

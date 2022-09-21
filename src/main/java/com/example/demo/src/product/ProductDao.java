@@ -124,4 +124,9 @@ public class ProductDao {
         }).length;
 
     }
+
+    public int deleteProduct(int productId) {
+        String query = "UPDATE product SET status = 'D' WHERE product_id=?";
+        return this.jdbcTemplate.update(query, productId);
+    }
 }
