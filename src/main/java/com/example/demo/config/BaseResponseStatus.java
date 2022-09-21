@@ -34,6 +34,10 @@ public enum BaseResponseStatus {
     EMPTY_JWT(false, 401, "JWT를 입력해주세요."),
     INVALID_JWT(false, 403, "유효하지 않은 JWT입니다."),
 
+    INSERT_FAIL(true, 408, "등록에 실패했습니다."),
+    DELETE_FAIL(true, 409, "삭제에 실패했습니다."),
+    UPDATE_FAIL(true, 410, "수정에 실패했습니다."),
+
     // User
     INVALID_EMAIL_AUTH(false, 402, "유효한 인증이 아닙니다."),
     FAIL_LOGIN(false, 407, "로그인에 실패했습니다."),
