@@ -46,7 +46,7 @@ public enum BaseResponseStatus {
 
 
     // 451-499 조이
-
+    EMPTY_IMAGE_ERROR(false, 452, "이미지가 입력되지 않았습니다"),
 
     /**
      * 5XX : Server 에러
