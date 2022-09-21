@@ -50,6 +50,7 @@ public class ProductController {
     @PostMapping("")
     public BaseResponse<PostProductRes> createProduct(@RequestParam(value = "images", required = true) List<MultipartFile> multipartFiles, @RequestParam(value = "jsonBody", required = true) String jsonBody) throws JsonProcessingException, BaseException {
         //jwt 인증
+        int userId= jwtService.getUserId();
 
         //S3에 이미지 업로드 및 url 반환
         if(multipartFiles.get(0).isEmpty()) throw new BaseException(INVALID_REQUEST_FIELD);
@@ -62,7 +63,7 @@ public class ProductController {
         //상품 등록
         try{
             PostProductRes postProductRes = productService.createProduct(postProductReq, iamgeUrls);
-            return new BaseResponse<>(postProductRes);
+            return new BaseResponse<>(postProductRes, INSERT_SUCCESS);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
         }
