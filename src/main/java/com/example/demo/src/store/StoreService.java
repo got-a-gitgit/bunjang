@@ -1,7 +1,8 @@
 package com.example.demo.src.store;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.utils.JwtService;
+import com.example.demo.src.store.model.PostStoreProfileReq;
+import com.example.demo.utils.S3Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +16,15 @@ public class StoreService {
 
     private final StoreDao storeDao;
     private final StoreProvider storeProvider;
+    private final S3Service s3Service;
+
 
     @Autowired
-    public StoreService(StoreDao storeDao, StoreProvider storeProvider) {
+    public StoreService(StoreDao storeDao, StoreProvider storeProvider, S3Service s3Service) {
         this.storeDao = storeDao;
         this.storeProvider = storeProvider;
+        this.s3Service = s3Service;
+
     }
 
 
@@ -29,6 +34,12 @@ public class StoreService {
         int isUser = storeProvider.checkUserId(userId);
         if (isUser == 0) {
             throw new BaseException(INVALID_JWT);
+        }
+
+        // 상점명 중복 확인
+        int duplicated = storeProvider.checkDuplicatesStoreName(userId, name);
+        if (duplicated == 1){
+            throw new BaseException(DUPLICATE_STORE_NAME);
         }
 
         // 가입된 유저라면 상점 등록

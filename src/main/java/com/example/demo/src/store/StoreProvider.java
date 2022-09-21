@@ -32,4 +32,14 @@ public class StoreProvider {
         }
     }
 
+    /** 상점명 중복 확인 **/
+    public int checkDuplicatesStoreName(int userId, String name) throws BaseException {
+        try {
+            return storeDao.selectStoreName(userId, name);
+        } catch (Exception e){
+            logger.error("CheckUserId Error", e);
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
 }
