@@ -2,14 +2,18 @@ package com.example.demo.src.store;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
+import com.example.demo.src.store.model.GetFollowRes;
 import com.example.demo.src.store.model.PatchStoreProfileRes;
 import com.example.demo.src.store.model.PostStoreNameReq;
 import com.example.demo.src.store.model.PatchStoreProfileReq;
 import com.example.demo.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+
+import java.util.List;
 
 import static com.example.demo.config.BaseResponseStatus.*;
 
@@ -61,6 +65,11 @@ public class StoreController {
 
     }
 
+    /**
+     * 상점 팔로우 API
+     * [POST] /stores/:store-id/followed
+     * @return BaseResponse<String>
+     */
     @ResponseBody
     @PostMapping("/{store-id}/followed")
     public BaseResponse<String> modifyFollowing(@PathVariable("store-id") int followId) throws BaseException {
@@ -72,9 +81,29 @@ public class StoreController {
             return new BaseResponse<>(INVALID_ACCESS);
         }
 
-        storeService.modifyFollowing(userId, followId);
+        String result = storeService.modifyFollowing(userId, followId);
 
-        return new BaseResponse<>(SUCCESS_WITH_NO_DATA);
+        return new BaseResponse<>(result);
+    }
+
+
+    @ResponseBody
+    @GetMapping("/{store-id}/followers")
+    public BaseResponse<List<GetFollowRes>> getFollowers(@PathVariable("store-id") int storeId,
+                                                         @RequestParam(value = "id", defaultValue = "0") int lastId) throws BaseException {
+        List<GetFollowRes> followers = storeProvider.getFollowers(storeId, lastId);
+
+        return new BaseResponse<>(followers);
+    }
+
+    @ResponseBody
+    @GetMapping("/{store-id}/followings")
+    public BaseResponse<List<GetFollowRes>> getFollowings(@PathVariable("store-id") int storeId,
+                                                          @RequestParam(value = "id", defaultValue = "0") int lastId) throws BaseException {
+        List<GetFollowRes> followings = storeProvider.getFollowings(storeId, lastId);
+
+        return new BaseResponse<>(followings);
+
     }
 
 }
