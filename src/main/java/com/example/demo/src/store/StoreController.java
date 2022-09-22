@@ -2,15 +2,14 @@ package com.example.demo.src.store;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
+import com.example.demo.src.store.model.PatchStoreProfileRes;
 import com.example.demo.src.store.model.PostStoreNameReq;
-import com.example.demo.src.store.model.PostStoreProfileReq;
+import com.example.demo.src.store.model.PatchStoreProfileReq;
 import com.example.demo.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-
-import static com.example.demo.config.BaseResponseStatus.INSERT_SUCCESS;
 
 @RestController
 @RequestMapping("/stores")
@@ -38,18 +37,25 @@ public class StoreController {
         // jwt에서 id 추출
         int userId = jwtService.getUserId();
 
-        storeService.registerStoreName(userId, store.getName());
+        String result = storeService.registerStoreName(userId, store.getName());
 
-        return new BaseResponse<>(INSERT_SUCCESS);
+        return new BaseResponse<>(result);
     }
 
+    /**
+     * 상점 소개 수정 API
+     * [POST] /stores
+     * @return BaseResponse<PatchStoreProfileReq>
+     */
     @ResponseBody
-    @PutMapping("")
-    public String modifyStoreProfile(@ModelAttribute PostStoreProfileReq storeProfile) throws BaseException{
+    @PatchMapping("")
+    public BaseResponse<PatchStoreProfileRes> modifyStoreProfile(@ModelAttribute @Valid PatchStoreProfileReq storeProfile) throws BaseException{
         // jwt에서 id 추출
         int userId = jwtService.getUserId();
 
-        return "";
+        PatchStoreProfileRes result = storeService.modifyStoreProfile(userId, storeProfile);
+
+        return new BaseResponse<>(result);
 
     }
 

@@ -1,6 +1,7 @@
 package com.example.demo.src.store;
 
 import com.example.demo.config.BaseException;
+import com.example.demo.src.store.model.PatchStoreProfileRes;
 import com.example.demo.utils.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,5 +42,17 @@ public class StoreProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    /** 상점 프로필 조회 **/
+    public PatchStoreProfileRes getStoreProfile(int userid) throws BaseException {
+        try {
+            return storeDao.selectStoreProfile(userid);
+        } catch (Exception e){
+            logger.error("GetStoreProfile Error", e);
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
 
 }

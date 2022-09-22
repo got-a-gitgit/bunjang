@@ -1,12 +1,14 @@
 package com.example.demo.src.store;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.store.model.PostStoreProfileReq;
+import com.example.demo.src.store.model.PatchStoreProfileReq;
+import com.example.demo.src.store.model.PatchStoreProfileRes;
 import com.example.demo.utils.S3Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import static com.example.demo.config.BaseResponseStatus.*;
 
@@ -29,7 +31,7 @@ public class StoreService {
 
 
     /** 상점명 설정 **/
-    public void registerStoreName(int userId, String name) throws BaseException {
+    public String registerStoreName(int userId, String name) throws BaseException {
         // 가입된 유저인지 확인
         int isUser = storeProvider.checkUserId(userId);
         if (isUser == 0) {
@@ -48,6 +50,9 @@ public class StoreService {
             if (result == 0) {  // 등록 실패
                 throw new BaseException(INSERT_FAIL);
             }
+
+            return name;
+
         } catch (BaseException e){
             throw new BaseException(e.getStatus());
         } catch (Exception e){
@@ -56,28 +61,44 @@ public class StoreService {
     }
 
     /** 상점 소개 편집 **/
-    public void modifyStoreProfile(int userId, PostStoreProfileReq storeProfile) throws BaseException {
+    public PatchStoreProfileRes modifyStoreProfile(int userId, PatchStoreProfileReq storeProfile) throws BaseException {
         // 가입된 유저인지 확인
         int isUser = storeProvider.checkUserId(userId);
         if (isUser == 0) {
             throw new BaseException(INVALID_JWT);
         }
 
-        // 가입된 유저인 경우, 상점 소개 수정
-        if (storeProfile.getProfileImageFile() != null){ // 프로필 이미지를 등록하는 경우
-            // 프로필 이미지 저장 후, URL 저장
-            String profileImageUrl = s3Service.uploadImage(storeProfile.getProfileImageFile());
-            storeProfile.setProfileImageUrl(profileImageUrl);
+        // 프로필 이미지 정보
+        String originImageUrl = storeProfile.getOriginImageUrl();    // 기존의 이미지
+        MultipartFile newImageFile = storeProfile.getNewImageFile(); // 업로드한 이미지
+        String profileImageUrl;
+
+        // 프로필 이미지 수정
+        if (newImageFile != null) { // 새로운 프로필 이미지를 등록하는 경우
+            profileImageUrl = s3Service.updateImage(originImageUrl, newImageFile);
+        } else {    // 기존의 이미지를 삭제하는 경우
+            if (originImageUrl != null){
+                s3Service.deleteImage(originImageUrl);
+            }
+            profileImageUrl = null;
         }
 
+        // DB에 저장할 이미지 Url 설정
+        storeProfile.setOriginImageUrl(profileImageUrl);
+
         try {
-            // 상품 소개 수정
+            // 상점 소개 수정
             int result = storeDao.updateStoreProfile(userId, storeProfile);
             if (result == 0) {  // 수정 실패
                 throw new BaseException(UPDATE_FAIL);
             }
-        } catch (BaseException e){
+            return storeProvider.getStoreProfile(userId);
 
+        } catch (BaseException e){
+            throw new BaseException(e.getStatus());
+        } catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
         }
+
     }
 }

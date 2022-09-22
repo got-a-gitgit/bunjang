@@ -61,7 +61,9 @@ public enum BaseResponseStatus {
 
 
     // 561-599 조이
-    S3_UPLOAD_ERROR(false, 561, "S3 업로드에 실패했습니다.");
+    S3_UPLOAD_ERROR(false, 561, "S3 업로드에 실패했습니다."),
+    S3_DELETE_ERROR(false, 562, "S3 파일 삭제에 실패했습니다."),
+    S3_UPDATE_ERROR(false, 563, "S3 파일 수정에 실패했습니다.");
 
     private final boolean isSuccess;
     private final int code;
