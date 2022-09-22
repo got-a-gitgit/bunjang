@@ -1,6 +1,8 @@
 package com.example.demo.src.product;
 
 
+import com.example.demo.config.BaseException;
+import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.src.product.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -12,6 +14,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.example.demo.config.BaseResponseStatus.*;
 
 @Repository
 public class ProductDao {
@@ -126,7 +130,90 @@ public class ProductDao {
     }
 
     public int deleteProduct(int productId) {
-        String query = "UPDATE product SET status = 'D' WHERE product_id=?";
+        String query = "UPDATE product SET status = 'D' WHERE product_id=? AND status!='D'";
         return this.jdbcTemplate.update(query, productId);
+    }
+
+    public GetProductRes getProduct(int productId) throws BaseException {
+        String query = "SELECT " +
+                "p.product_id as product_id, " +
+                "p.name as name, " +
+                "p.user_id as user_id, " +
+                "price, " +
+                "p.category_id as category_id, " +
+                "c.name as category_name, " +
+                "shipping_fee_included_flag, " +
+                "location, " +
+                "amount, " +
+                "used_flag, " +
+                "safe_payment_flag, "+
+                "exchange_flag, "+
+                "contents, "+
+                "view, "+
+                "COUNT(wish_id) as wishes, "+
+                "p.status as status, " +
+                "c.created_at as created_at\n" +
+                "FROM product p\n" +
+                "JOIN category c on p.category_id = c.category_id\n" +
+                "JOIN wish w on p.product_id = w.product_id\n" +
+                "WHERE p.product_id = ? AND p.status!='D'\n " +
+                "GROUP BY p.product_id";
+
+        try {
+            return this.jdbcTemplate.queryForObject(query,
+                    (rs, rowNum) -> new GetProductRes(
+                            rs.getInt("product_id"),
+                            rs.getString("name"),
+                            rs.getInt("user_id"),
+                            rs.getInt("price"),
+                            rs.getInt("category_id"),
+                            rs.getString("category_name"),
+                            rs.getString("shipping_fee_included_flag"),
+                            rs.getString("location"),
+                            rs.getInt("amount"),
+                            rs.getString("used_flag"),
+                            rs.getString("safe_payment_flag"),
+                            rs.getString("exchange_flag"),
+                            rs.getString("contents"),
+                            rs.getInt("view"),
+                            rs.getInt("wishes"),
+                            rs.getString("status"),
+                            rs.getString("created_at")
+                    ),
+                    productId);
+        } catch (Exception exception) {
+            throw new BaseException(NON_EXISTENT_PRODUCT);
+        }
+    }
+
+    public List<String> getProductImages(int productId) {
+        String query = "SELECT url\n" +
+                "FROM product p\n" +
+                "JOIN product_image pi on p.product_id = pi.product_id\n" +
+                "WHERE p.product_id = ?";
+
+        return this.jdbcTemplate.query(query,
+                (rs,rowNum)-> new String(
+                        rs.getString("url")
+                ),productId);
+    }
+
+    public List<String> getProductTags(int productId) {
+        String query = "SELECT t.name as tag\n" +
+                "FROM product p\n" +
+                "JOIN product_tag pt on p.product_id = pt.product_id\n" +
+                "JOIN tag t on t.tag_id = pt.tag_id\n" +
+                "WHERE p.product_id = ?";
+
+        return this.jdbcTemplate.query(query,
+                (rs,rowNum)-> new String(
+                        rs.getString("tag")
+                ),productId);
+    }
+
+    public void increaseProductView(int productId, int view) {
+        String query = "UPDATE product SET view = ? WHERE product_id=?";
+        Object[] params = new Object[]{view,productId};
+        this.jdbcTemplate.update(query, params);
     }
 }
