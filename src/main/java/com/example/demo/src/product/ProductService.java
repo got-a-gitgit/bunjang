@@ -70,4 +70,17 @@ public class ProductService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public void increaseProductView(int productId) throws BaseException {
+        try {
+            //상품 조회수 1증가
+            GetProductRes product = productDao.getProduct(productId);
+            int view = product.getView();
+            productDao.increaseProductView(productId, view + 1);
+        } catch (BaseException baseException) {
+            throw baseException;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

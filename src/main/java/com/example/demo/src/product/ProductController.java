@@ -71,11 +71,11 @@ public class ProductController {
     /**
      * 상품 삭제 API
      * [DELETE] /products/:product-id
-     * @return BaseResponse<>
+     * @return BaseResponse
      */
     @ResponseBody
     @DeleteMapping("/{product-id}")
-    public BaseResponse<PostProductRes> deleteProduct(@PathVariable("product-id") int productId) throws BaseException {
+    public BaseResponse deleteProduct(@PathVariable("product-id") int productId) throws BaseException {
         //jwt 인증
         int userId= jwtService.getUserId();
 
@@ -83,6 +83,29 @@ public class ProductController {
         try{
             productService.deleteProduct(productId);
             return new BaseResponse<>(DELETE_SUCCESS);
+        } catch(BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
+     * 상품 상제페이지 API
+     * [GET] /products/:product-id
+     * @return BaseResponse<>
+     */
+    @ResponseBody
+    @GetMapping("/{product-id}")
+    public BaseResponse<GetProductRes> getProduct(@PathVariable("product-id") int productId) throws BaseException {
+        //jwt 인증
+        int userId= jwtService.getUserId();
+
+
+        try{
+            //상품 조회수 증가
+            productService.increaseProductView(productId);
+            //상품 조회
+            GetProductRes getProductRes = productProvider.getProduct(productId);
+            return new BaseResponse<>(getProductRes);
         } catch(BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
