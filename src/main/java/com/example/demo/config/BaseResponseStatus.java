@@ -33,6 +33,7 @@ public enum BaseResponseStatus {
 
     EMPTY_JWT(false, 401, "JWT를 입력해주세요."),
     INVALID_JWT(false, 403, "유효하지 않은 JWT입니다."),
+    INVALID_ACCESS(false, 405, "잘못된 요청입니다."),
 
     INSERT_FAIL(true, 408, "등록에 실패했습니다."),
     DELETE_FAIL(true, 409, "삭제에 실패했습니다."),
@@ -44,6 +45,7 @@ public enum BaseResponseStatus {
 
     // 410-50 미치
     DUPLICATE_STORE_NAME(false, 411, "사용 중인 상점명입니다."),
+    FAIL_FOLLOW_STORE(false, 412, "팔로우 실패했습니다."),
 
 
     // 451-499 조이
