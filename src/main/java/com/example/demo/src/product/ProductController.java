@@ -48,6 +48,7 @@ public class ProductController {
 
         //jwt 인증
         int userId= jwtService.getUserId();
+        postProductReq.setUserId(userId);
 
         List<MultipartFile> images= postProductReq.getImages();
 
@@ -90,7 +91,7 @@ public class ProductController {
     /**
      * 상품 상제페이지 API
      * [GET] /products/:product-id
-     * @return BaseResponse<>
+     * @return BaseResponse<GetProductRes>
      */
     @ResponseBody
     @GetMapping("/{product-id}")
@@ -109,6 +110,28 @@ public class ProductController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
+    /**
+     * 상점 판매상품 조회 API
+     * [GET] /products/store/:user-id
+     * @return BaseResponse<>
+     */
+//    @ResponseBody
+//    @GetMapping("/store/{user-id}")
+//    public BaseResponse<List<GetProductListRes>> getProductListByStoreId(@PathVariable("user-id") int storeId) throws BaseException {
+//        //jwt 인증
+//        int userId= jwtService.getUserId();
+//
+//
+//        try{
+//            //상점 판매상품 조회
+//            List<GetProductListRes> getProductListRes = productProvider.getProductListByStoreId(storeId);
+//            return new BaseResponse<>(getProductListRes);
+//        } catch(BaseException exception){
+//            return new BaseResponse<>(exception.getStatus());
+//        }
+//    }
+
 
 
 }
