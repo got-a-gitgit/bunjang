@@ -1,6 +1,7 @@
 package com.example.demo.src.store;
 
-import com.example.demo.src.store.model.PostStoreProfileReq;
+import com.example.demo.src.store.model.PatchStoreProfileReq;
+import com.example.demo.src.store.model.PatchStoreProfileRes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -27,7 +28,7 @@ public class StoreDao {
         return this.jdbcTemplate.update(query, userId, name, userId, name);
     }
 
-    // Check SQL
+    // Select SQL
     /** 유저 식별번호 확인 **/
     public int selectUserId(int userId){
         String query = "SELECT EXISTS (SELECT user_id FROM user WHERE user_id = ? AND status = 'Y')";
@@ -42,13 +43,29 @@ public class StoreDao {
         return this.jdbcTemplate.queryForObject(query, int.class, storeName, userId);
     }
 
+    /** 상점 프로필 조회 **/
+    public PatchStoreProfileRes selectStoreProfile(int userId){
+        String query = "SELECT profile_image_url, store_name, description FROM store WHERE user_id = ?";
+
+        return this.jdbcTemplate.queryForObject(query,
+                (rs, rowNum) -> new PatchStoreProfileRes(
+                        rs.getString("profile_image_url"),
+                        rs.getString("store_name"),
+                        rs.getString("description")),
+                userId);
+    }
+
     // Update SQL
-    public int updateStoreProfile(int userId, PostStoreProfileReq storeProfile){
+    /** 상점 소개 수정 **/
+    public int updateStoreProfile(int userId, PatchStoreProfileReq storeProfile){
         String query = "UPDATE store " +
                        "SET profile_image_url = ?, store_name = ?, description = ? " +
                        "WHERE user_id = ? AND status = 'Y'";
 
-        return this.jdbcTemplate.update(query);
+        Object[] storeProfileParams = new Object[]{storeProfile.getOriginImageUrl(),
+            storeProfile.getStoreName(), storeProfile.getDescription(), userId};
+
+        return this.jdbcTemplate.update(query, storeProfileParams);
     }
 
 }
