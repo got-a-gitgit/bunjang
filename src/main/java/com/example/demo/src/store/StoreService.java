@@ -90,7 +90,7 @@ public class StoreService {
     }
 
     /** 상점 팔로우/언팔로우 **/
-    public void modifyFollowing(int userId, int followId) throws BaseException {
+    public String modifyFollowing(int userId, int followId) throws BaseException {
         // 유효한 (팔로우)유저인지 확인
         int isUser = storeProvider.checkUserId(followId);
         if (isUser == 0) {
@@ -99,15 +99,11 @@ public class StoreService {
 
         // 팔로우 관계 처리
         try {
-           int result = storeDao.insertFollowing(userId, followId);
-           if (result == 0){    // 팔로우(언팔로우) 실패
-               throw new BaseException(FAIL_FOLLOW_STORE);
-           }
-        } catch (BaseException e) {
-            throw new BaseException(e.getStatus());
+            String result = storeDao.insertFollowing(userId, followId);
+            return result;
         } catch (Exception e){
             logger.error("Following Error", e);
-            throw new BaseException(DATABASE_ERROR);
+            throw new BaseException(FAIL_FOLLOW_STORE);
         }
     }
 
