@@ -33,5 +33,21 @@ public class ProductProvider {
     }
 
 
+    /** 상품 상세 조회 **/
+    public GetProductRes getProduct(int productId) throws BaseException {
+        try{
+            //상품 정보 조회
+            GetProductRes getProductRes =  productDao.getProduct(productId);
+            //상품 이미지 조회
+            List<String> images= productDao.getProductImages(productId);
+            getProductRes.setImages(images);
+            //상품 태그 조회
+            List<String> tags= productDao.getProductTags(productId);
+            getProductRes.setTags(tags);
 
+            return getProductRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }
