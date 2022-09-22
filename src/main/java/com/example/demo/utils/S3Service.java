@@ -5,15 +5,17 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.example.demo.config.BaseException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.demo.config.BaseResponseStatus.S3_UPLOAD_ERROR;
+import static com.example.demo.config.BaseResponseStatus.*;
 
 @RequiredArgsConstructor
 @Service
@@ -21,6 +23,7 @@ import static com.example.demo.config.BaseResponseStatus.S3_UPLOAD_ERROR;
 // https://nirsa.tistory.com/288
 // https://jane514.tistory.com/10
 public class S3Service {
+    final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Value("${cloud.aws.s3.bucket}")    // application.yml
     private String bucket;
@@ -48,6 +51,7 @@ public class S3Service {
             // 파일 업로드 후 URL 저장
             amazonS3.putObject(bucket, fileName, multipartFile.getInputStream(), objectMetadata);
         } catch (Exception e){
+            logger.error("S3 ERROR", e);
             // 이미지 업로드 에러
             throw new BaseException(S3_UPLOAD_ERROR);
         }
@@ -71,16 +75,37 @@ public class S3Service {
                 amazonS3.putObject(bucket, fileName, file.getInputStream(), objectMetadata);
                 imageUrl.add(amazonS3.getUrl(bucket, fileName).toString());
             } catch (Exception e) {
+                logger.error("S3 ERROR", e);
                 throw new BaseException(S3_UPLOAD_ERROR);
             }
         }
-
         return imageUrl;
     }
 
     /** 파일 삭제 **/
-    public void deleteImage(String filename){
-        amazonS3.deleteObject(new DeleteObjectRequest(bucket, filename));
+    public void deleteImage(String imageUrl) throws BaseException {
+        try {
+            // 파일명 디코딩
+            String fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1, imageUrl.length());
+            String decodeData = URLDecoder.decode(fileName, "UTF-8");
+            // 파일 삭제
+            amazonS3.deleteObject(new DeleteObjectRequest(bucket, directory + decodeData));
+        } catch (Exception e) {
+            logger.error("S3 ERROR", e);
+            throw new BaseException(S3_DELETE_ERROR);
+        }
     }
 
+    /** 파일 수정(삭제 후 등록) **/
+    public String updateImage(String originUrl, MultipartFile newFile) throws BaseException {
+        try {
+            if (originUrl != null) {
+                deleteImage(originUrl);
+            }
+        } catch (Exception e){
+            throw new BaseException(S3_UPDATE_ERROR);
+        }
+
+        return uploadImage(newFile);
+    }
 }
