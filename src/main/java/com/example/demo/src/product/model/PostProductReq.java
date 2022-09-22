@@ -4,10 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Getter
@@ -15,28 +16,41 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostProductReq {
-    @NotBlank
-    private String name;
-    @NotNull
-    private int userId;
+    @NotNull(message = "이미지가 입력되지 않았습니다.")
+    private List<MultipartFile> images;
 
-    private int price;
-    @NotNull
-    private int categoryId;
-    @NotNull
+    @NotBlank(message = "제목이 입력되지 않았습니다.")
+    private String name;
+
+    @NotNull(message = "userId가 입력되지 않았습니다.")
+    private Integer userId;
+
+    @NotNull(message = "가격이 입력되지 않았습니다.")
+    private Integer price;
+
+    @NotNull(message = "카테고리가 입력되지 않았습니다.")
+    private Integer categoryId;
+
+    @NotNull(message = "배송비 포함 여부가 입력되지 않았습니다.")
     private String shippingFeeIncluded;
-    @NotNull
+
+    @NotBlank(message = "지역 정보가 입력되지 않았습니다.")
     private String location;
-    @NotNull
-    @Min(value=1)
-    private int amount;
-    @NotNull
+
+    @NotNull(message = "개수가 입력되지 않았습니다.")
+    @Min(value=1, message = "개수는 1개 이상이어야 합니다.")
+    private Integer amount;
+
+    @NotNull(message = "상품의 사용여부가 입력되지 않았습니다.")
     private String used;
-    @NotNull
+
+    @NotNull(message = "안전 결재 사용 여부가 입력되지 않았습니다.")
     private String safePayment;
-    @NotNull
+
+    @NotNull(message = "교환 가능 여부가 입력되지 않았습니다.")
     private String exchangePayment;
-    @NotNull
+
+    @NotNull(message = "상품 설명이 입력되지 않았습니다.")
     private String contents;
 
     private List<String> tags;
