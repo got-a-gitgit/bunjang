@@ -28,6 +28,16 @@ public class StoreDao {
         return this.jdbcTemplate.update(query, userId, name, userId, name);
     }
 
+    /** 팔로우 상태 수정**/
+    public int insertFollowing(int userId, int followId){
+        String query = "INSERT INTO follow(follower, followee, status) VALUES(?, ?, 'Y') " +
+                        "ON DUPLICATE KEY UPDATE status = CASE " +
+                        "WHEN status = 'Y' THEN 'N' " +
+                        "WHEN status = 'N' THEN 'Y' " +
+                        "END";
+        return this.jdbcTemplate.update(query, userId, followId);
+    }
+
     // Select SQL
     /** 유저 식별번호 확인 **/
     public int selectUserId(int userId){
