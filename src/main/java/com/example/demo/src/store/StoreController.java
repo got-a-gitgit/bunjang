@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import static com.example.demo.config.BaseResponseStatus.*;
+
 @RestController
 @RequestMapping("/stores")
 public class StoreController {
@@ -57,6 +59,22 @@ public class StoreController {
 
         return new BaseResponse<>(result);
 
+    }
+
+    @ResponseBody
+    @PostMapping("/{store-id}/followed")
+    public BaseResponse<String> modifyFollowing(@PathVariable("store-id") int followId) throws BaseException {
+        // jwt에서 id 추출
+        int userId = jwtService.getUserId();
+
+        // 스스로 팔로우 불가
+        if (userId == followId){
+            return new BaseResponse<>(INVALID_ACCESS);
+        }
+
+        storeService.modifyFollowing(userId, followId);
+
+        return new BaseResponse<>(SUCCESS_WITH_NO_DATA);
     }
 
 }
