@@ -40,6 +40,7 @@ public class BaseResponse<T> {
 
 
     // 요청에 실패한 경우
+    // 성공헀지만 추가적인 result가 없는 경우
     public BaseResponse(BaseResponseStatus status) {
         this.isSuccess = status.isSuccess();
         this.code = status.getCode();
