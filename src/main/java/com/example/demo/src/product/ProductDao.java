@@ -235,7 +235,7 @@ public class ProductDao {
                 "         LEFT JOIN (SELECT url, MIN(product_image_id), product_id\n" +
                 "               FROM product_image\n" +
                 "               GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
-                "WHERE p.user_id = ? AND p.product_id<?\n" +
+                "WHERE p.user_id = ? AND p.product_id<? AND p.status!='D'\n"+
                 "order by p.product_id DESC\n" +
                 "LIMIT 20";
 
@@ -271,7 +271,7 @@ public class ProductDao {
                 "         LEFT JOIN (SELECT url, MIN(product_image_id), product_id\n" +
                 "               FROM product_image\n" +
                 "               GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
-                "WHERE p.user_id = ?\n" +
+                "WHERE p.user_id = ? AND p.status!='D'"+
                 "order by p.product_id DESC\n" +
                 "LIMIT 21";
 
@@ -285,6 +285,102 @@ public class ProductDao {
                         rs.getString("name"),
                         rs.getString("safe_payment_flag"),
                         rs.getString("wish")),
+                params);
+    }
+
+    public List<RecommendedProduct> getFirstProductList(int userId) {
+        String query = "SELECT p.product_id as product_id, " +
+                "user_id, " +
+                "pi.url as image,\n" +
+                "       CASE\n" +
+                "           WHEN w.status ='Y' THEN 'Y'\n" +
+                "           ELSE 'N'\n" +
+                "        END as wish,\n" +
+                "price, " +
+                "name, " +
+                "location, " +
+                "p.created_at as created_at, " +
+                "safe_payment_flag,\n" +
+                "    CASE\n" +
+                "        WHEN ISNULL(wc.wishes) THEN 0\n" +
+                "        ELSE wc.wishes\n" +
+                "    END as wishes\n" +
+                "FROM product p\n" +
+                "         LEFT JOIN(SELECT product_id, status\n" +
+                "                   FROM wish\n" +
+                "                   WHERE user_id = ?) w on p.product_id = w.product_id\n" +
+                "         LEFT JOIN(SELECT url, MIN(product_image_id), product_id\n" +
+                "                   FROM product_image\n" +
+                "                   GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
+                "         LEFT JOIN(SELECT product_id, COUNT(product_id) as wishes\n" +
+                "                   FROM wish\n" +
+                "                   GROUP BY product_id) as wc on p.product_id = wc.product_id\n" +
+                "WHERE p.status!='D'"+
+                "ORDER BY p.product_id DESC\n" +
+                "LIMIT 21";
+
+        return this.jdbcTemplate.query(query,
+                (rs,rowNum)->new RecommendedProduct(
+                        rs.getInt("product_id"),
+                        rs.getInt("user_id"),
+                        rs.getString("image"),
+                        rs.getString("wish"),
+                        rs.getInt("price"),
+                        rs.getString("name"),
+                        rs.getString("location"),
+                        rs.getString("created_at"),
+                        rs.getString("safe_payment_flag"),
+                        rs.getInt("wishes")
+                ),
+                userId);
+    }
+
+    public List<RecommendedProduct> getProductList(int userId, Integer lastProductId) {
+        String query = "SELECT p.product_id as product_id, " +
+                "user_id, " +
+                "pi.url as image,\n" +
+                "       CASE\n" +
+                "           WHEN w.status ='Y' THEN 'Y'\n" +
+                "           ELSE 'N'\n" +
+                "        END as wish,\n" +
+                "price, " +
+                "name, " +
+                "location, " +
+                "p.created_at as created_at, " +
+                "safe_payment_flag,\n" +
+                "    CASE\n" +
+                "        WHEN ISNULL(wc.wishes) THEN 0\n" +
+                "        ELSE wc.wishes\n" +
+                "    END as wishes\n" +
+                "FROM product p\n" +
+                "         LEFT JOIN(SELECT product_id, status\n" +
+                "                   FROM wish\n" +
+                "                   WHERE user_id = ?) w on p.product_id = w.product_id\n" +
+                "         LEFT JOIN(SELECT url, MIN(product_image_id), product_id\n" +
+                "                   FROM product_image\n" +
+                "                   GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
+                "         LEFT JOIN(SELECT product_id, COUNT(product_id) as wishes\n" +
+                "                   FROM wish\n" +
+                "                   GROUP BY product_id) as wc on p.product_id = wc.product_id\n" +
+                "WHERE p.product_id<? AND p.status!='D'"+
+                "ORDER BY p.product_id DESC\n" +
+                "LIMIT 21";
+
+        Object[] params = new Object[]{userId, lastProductId};
+
+        return this.jdbcTemplate.query(query,
+                (rs,rowNum)->new RecommendedProduct(
+                        rs.getInt("product_id"),
+                        rs.getInt("user_id"),
+                        rs.getString("image"),
+                        rs.getString("wish"),
+                        rs.getInt("price"),
+                        rs.getString("name"),
+                        rs.getString("location"),
+                        rs.getString("created_at"),
+                        rs.getString("safe_payment_flag"),
+                        rs.getInt("wishes")
+                ),
                 params);
     }
 }

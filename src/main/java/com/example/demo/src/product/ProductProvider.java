@@ -52,9 +52,10 @@ public class ProductProvider {
         }
     }
 
-    public GetProductListRes getProductListByStoreId(int userId, int storeId, int lastProductId) throws BaseException {
+    /** 상점 판매 상품 목록 조회 **/
+    public GetStoreProductListRes getStoreProductListByStoreId(int userId, int storeId, int lastProductId) throws BaseException {
         try{
-            GetProductListRes getProductListRes = new GetProductListRes();
+            GetStoreProductListRes getStoreProductListRes = new GetStoreProductListRes();
             List<ProductListElement> productList;
 
             //첫 조회와 무한스크롤 구분
@@ -62,6 +63,39 @@ public class ProductProvider {
                 productList = productDao.getFirstProductListByStoreId(userId, storeId);
             } else {
                 productList = productDao.getProductListByStoreId(userId, storeId,lastProductId);
+            }
+
+            //다음 페이지 존재 여부 입력
+            if (productList.size() == 21) {
+                getStoreProductListRes.setHasNextPage(true);
+                getStoreProductListRes.setProductList(productList.subList(0, 20));
+            } else {
+                getStoreProductListRes.setHasNextPage(false);
+                getStoreProductListRes.setProductList(productList);
+            }
+
+            //마지막 아이디 입력
+            productList = getStoreProductListRes.getProductList();
+            int newLastProductId = productList.get(productList.size() - 1).getProductId();
+            getStoreProductListRes.setLastProductId(newLastProductId);
+
+            return getStoreProductListRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /** 홈화면 추천 상품 목록 조회 **/
+    public GetProductListRes getProductList(int userId, Integer lastProductId) throws BaseException {
+        try{
+            GetProductListRes getProductListRes = new GetProductListRes();
+            List<RecommendedProduct> productList;
+
+            //첫 조회와 무한스크롤 구분
+            if (lastProductId == -1) {
+                productList = productDao.getFirstProductList(userId);
+            } else {
+                productList = productDao.getProductList(userId,lastProductId);
             }
 
             //다음 페이지 존재 여부 입력
@@ -79,7 +113,7 @@ public class ProductProvider {
             getProductListRes.setLastProductId(newLastProductId);
 
             return getProductListRes;
-        } catch (Exception exception) {
+        } catch(Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
     }

@@ -11,8 +11,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetProductListRes {
+public class GetStoreProductListRes {
     private boolean hasNextPage;
     private int lastProductId;
-    private List<RecommendedProduct> productList;
+    private List<ProductListElement> productList;
 }
