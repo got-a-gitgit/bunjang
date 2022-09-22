@@ -113,24 +113,23 @@ public class ProductController {
 
     /**
      * 상점 판매상품 조회 API
-     * [GET] /products/store/:user-id
+     * [GET] /products/stores?store-id=스토어id&last-product-id=마지막상품id
      * @return BaseResponse<>
      */
-//    @ResponseBody
-//    @GetMapping("/store/{user-id}")
-//    public BaseResponse<List<GetProductListRes>> getProductListByStoreId(@PathVariable("user-id") int storeId) throws BaseException {
-//        //jwt 인증
-//        int userId= jwtService.getUserId();
-//
-//
-//        try{
-//            //상점 판매상품 조회
-//            List<GetProductListRes> getProductListRes = productProvider.getProductListByStoreId(storeId);
-//            return new BaseResponse<>(getProductListRes);
-//        } catch(BaseException exception){
-//            return new BaseResponse<>(exception.getStatus());
-//        }
-//    }
+    @ResponseBody
+    @GetMapping("/stores")
+    public BaseResponse<GetProductListRes> getProductListByStoreId(@RequestParam(value = "store-id", required = true) int storeId, @RequestParam(value = "last-product-id", required = true, defaultValue = "-1") Integer lastProductId) throws BaseException {
+        //jwt 인증
+        int userId= jwtService.getUserId();
+
+        try{
+            //상점 판매상품 조회
+            GetProductListRes getProductListRes = productProvider.getProductListByStoreId(userId, storeId, lastProductId);
+            return new BaseResponse<>(getProductListRes);
+        } catch(BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 
 
 

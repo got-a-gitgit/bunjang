@@ -216,4 +216,75 @@ public class ProductDao {
         Object[] params = new Object[]{view,productId};
         this.jdbcTemplate.update(query, params);
     }
+
+    public List<ProductListElement> getProductListByStoreId(int userId, int storeId, Integer lastProductId) {
+        String query = "SELECT p.product_id as product_id,\n" +
+                "       p.user_id    as user_id,\n" +
+                "       price,\n" +
+                "       name,\n" +
+                "       safe_payment_flag,\n" +
+                "        CASE\n" +
+                "            WHEN w.status ='Y' THEN 'Y'\n" +
+                "            ELSE 'N'\n" +
+                "        END as wish,\n" +
+                "        pi.url as image\n" +
+                "FROM product p\n" +
+                "         LEFT JOIN (SELECT product_id, status\n" +
+                "                    FROM wish\n" +
+                "                    WHERE user_id = ?) w on p.product_id = w.product_id\n" +
+                "         LEFT JOIN (SELECT url, MIN(product_image_id), product_id\n" +
+                "               FROM product_image\n" +
+                "               GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
+                "WHERE p.user_id = ? AND p.product_id<?\n" +
+                "order by p.product_id DESC\n" +
+                "LIMIT 20";
+
+        Object[] params = new Object[]{userId, storeId, lastProductId};
+        return this.jdbcTemplate.query(query,
+                (rs,rowNum)->new ProductListElement(
+                    rs.getInt("product_id"),
+                    rs.getInt("user_id"),
+                    rs.getInt("price"),
+                        rs.getString("image"),
+                        rs.getString("name"),
+                        rs.getString("safe_payment_flag"),
+                        rs.getString("wish")
+                ),
+                params);
+    }
+
+    public List<ProductListElement> getFirstProductListByStoreId(int userId, int storeId) {
+        String query = "SELECT p.product_id as product_id,\n" +
+                "       p.user_id    as user_id,\n" +
+                "       price,\n" +
+                "       name,\n" +
+                "       safe_payment_flag,\n" +
+                "        CASE\n" +
+                "            WHEN w.status ='Y' THEN 'Y'\n" +
+                "            ELSE 'N'\n" +
+                "        END as wish,\n" +
+                "        pi.url as image\n" +
+                "FROM product p\n" +
+                "         LEFT JOIN (SELECT product_id, status\n" +
+                "                    FROM wish\n" +
+                "                    WHERE user_id = ?) w on p.product_id = w.product_id\n" +
+                "         LEFT JOIN (SELECT url, MIN(product_image_id), product_id\n" +
+                "               FROM product_image\n" +
+                "               GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
+                "WHERE p.user_id = ?\n" +
+                "order by p.product_id DESC\n" +
+                "LIMIT 21";
+
+        Object[] params = new Object[]{userId, storeId};
+        return this.jdbcTemplate.query(query,
+                (rs,rowNum)->new ProductListElement(
+                        rs.getInt("product_id"),
+                        rs.getInt("user_id"),
+                        rs.getInt("price"),
+                        rs.getString("image"),
+                        rs.getString("name"),
+                        rs.getString("safe_payment_flag"),
+                        rs.getString("wish")),
+                params);
+    }
 }
