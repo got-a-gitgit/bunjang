@@ -155,5 +155,27 @@ public class ProductController {
         }
     }
 
+    /**
+     * 하위 카테고리 목록 조회 API
+     * [GET] /products/category?category-id={}
+     * @return BaseResponse<>
+     */
+    @ResponseBody
+    @GetMapping("/category")
+    public BaseResponse<GetCategoryListRes> getCategoryList(@RequestParam(value = "category-id", required = true) int categoryId) throws BaseException {
+        //jwt 인증
+        int userId= jwtService.getUserId();
+
+        try{
+            //추천 상품 조회
+            GetCategoryListRes getCategoryListRes = productProvider.getCategoryList(categoryId);
+            return new BaseResponse<>(getCategoryListRes);
+        } catch(BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+
+
 
 }
