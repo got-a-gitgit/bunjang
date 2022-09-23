@@ -348,12 +348,13 @@ public class ProductDao {
                 "price, " +
                 "name, " +
                 "location, " +
-                "p.created_at as created_at, " +
+                "p.updated_at as updated_at, " +
                 "safe_payment_flag,\n" +
                 "    CASE\n" +
                 "        WHEN ISNULL(wc.wishes) THEN 0\n" +
                 "        ELSE wc.wishes\n" +
-                "    END as wishes\n" +
+                "    END as wishes,\n" +
+                "p.status as status\n"+
                 "FROM product p\n" +
                 "         LEFT JOIN(SELECT product_id, status\n" +
                 "                   FROM wish\n" +
@@ -365,7 +366,7 @@ public class ProductDao {
                 "                   FROM wish\n" +
                 "                   GROUP BY product_id) as wc on p.product_id = wc.product_id\n" +
                 "WHERE p.status!='D'"+
-                "ORDER BY p.product_id DESC\n" +
+                "ORDER BY p.updated_at DESC, p.product_id DESC\n" +
                 "LIMIT 21";
 
         return this.jdbcTemplate.query(query,
@@ -377,15 +378,16 @@ public class ProductDao {
                         rs.getInt("price"),
                         rs.getString("name"),
                         rs.getString("location"),
-                        rs.getString("created_at"),
+                        rs.getString("updated_at"),
                         rs.getString("safe_payment_flag"),
-                        rs.getInt("wishes")
+                        rs.getInt("wishes"),
+                        rs.getString("status")
                 ),
                 userId);
     }
 
     /**홈 화면 추천상품목록 조회 with 무한스크롤**/
-    public List<RecommendedProduct> getProductList(int userId, Integer lastProductId) {
+    public List<RecommendedProduct> getProductList(int userId, String lastUpdatedAt, Integer lastProductId) {
         String query = "SELECT p.product_id as product_id, " +
                 "user_id, " +
                 "pi.url as image,\n" +
@@ -401,7 +403,8 @@ public class ProductDao {
                 "    CASE\n" +
                 "        WHEN ISNULL(wc.wishes) THEN 0\n" +
                 "        ELSE wc.wishes\n" +
-                "    END as wishes\n" +
+                "    END as wishes,\n" +
+                "p.status as status\n"+
                 "FROM product p\n" +
                 "         LEFT JOIN(SELECT product_id, status\n" +
                 "                   FROM wish\n" +
@@ -412,11 +415,11 @@ public class ProductDao {
                 "         LEFT JOIN(SELECT product_id, COUNT(product_id) as wishes\n" +
                 "                   FROM wish\n" +
                 "                   GROUP BY product_id) as wc on p.product_id = wc.product_id\n" +
-                "WHERE p.product_id<? AND p.status!='D'"+
-                "ORDER BY p.product_id DESC\n" +
+                "WHERE p.status!='D' AND (p.updated_at<? OR (p.updated_at=? AND p.product_id>?))\n"+
+                "ORDER BY p.updated_at DESC, p.product_id DESC\n" +
                 "LIMIT 21";
 
-        Object[] params = new Object[]{userId, lastProductId};
+        Object[] params = new Object[]{userId, lastUpdatedAt, lastUpdatedAt, lastProductId};
 
         return this.jdbcTemplate.query(query,
                 (rs,rowNum)->new RecommendedProduct(
@@ -429,7 +432,8 @@ public class ProductDao {
                         rs.getString("location"),
                         rs.getString("created_at"),
                         rs.getString("safe_payment_flag"),
-                        rs.getInt("wishes")
+                        rs.getInt("wishes"),
+                        rs.getString("status")
                 ),
                 params);
     }

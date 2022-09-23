@@ -17,7 +17,8 @@ public class RecommendedProduct {
     private int price;
     private String name;
     private String location;
-    private String createdAt;
+    private String updatedAt;
     private String safePayment;
     private int wishes;
+    private String status;
 }

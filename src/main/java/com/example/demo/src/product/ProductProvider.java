@@ -92,7 +92,7 @@ public class ProductProvider {
     }
 
     /** 홈화면 추천 상품 목록 조회 **/
-    public GetRecommendedProductListRes getProductList(int userId, Integer lastProductId) throws BaseException {
+    public GetRecommendedProductListRes getProductList(int userId, String lastUpdatedAt, Integer lastProductId) throws BaseException {
         try{
             GetRecommendedProductListRes getRecommendedProductListRes = new GetRecommendedProductListRes();
             List<RecommendedProduct> productList;
@@ -101,7 +101,7 @@ public class ProductProvider {
             if (lastProductId == -1) {
                 productList = productDao.getFirstProductList(userId);
             } else {
-                productList = productDao.getProductList(userId,lastProductId);
+                productList = productDao.getProductList(userId,lastUpdatedAt, lastProductId);
             }
 
             //다음 페이지 존재 여부 입력
@@ -117,6 +117,10 @@ public class ProductProvider {
             productList = getRecommendedProductListRes.getProductList();
             int newLastProductId = productList.get(productList.size() - 1).getProductId();
             getRecommendedProductListRes.setLastProductId(newLastProductId);
+
+            //마지막 상품 게시 시간 입력
+            String newLastUpdatedAt = productList.get(productList.size() - 1).getUpdatedAt();
+            getRecommendedProductListRes.setLastUpdatedAt(newLastUpdatedAt);
 
             return getRecommendedProductListRes;
         } catch(Exception exception) {

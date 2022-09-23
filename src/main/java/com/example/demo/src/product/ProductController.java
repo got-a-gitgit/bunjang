@@ -141,13 +141,14 @@ public class ProductController {
      */
     @ResponseBody
     @GetMapping("")
-    public BaseResponse<GetRecommendedProductListRes> getProductList(@RequestParam(value = "last-product-id", required = false, defaultValue = "-1") Integer lastProductId) throws BaseException {
+    public BaseResponse<GetRecommendedProductListRes> getProductList(@RequestParam(value = "last-updated-at", required = false) String lastUpdatedAt,
+                                                                     @RequestParam(value = "last-product-id", required = false, defaultValue = "-1") Integer lastProductId) throws BaseException {
         //jwt 인증
         int userId= jwtService.getUserId();
 
         try{
             //추천 상품 조회
-            GetRecommendedProductListRes getRecommendedProductListRes = productProvider.getProductList(userId, lastProductId);
+            GetRecommendedProductListRes getRecommendedProductListRes = productProvider.getProductList(userId, lastUpdatedAt, lastProductId);
             return new BaseResponse<>(getRecommendedProductListRes);
         } catch(BaseException exception){
             return new BaseResponse<>(exception.getStatus());

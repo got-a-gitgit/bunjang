@@ -14,5 +14,6 @@ import java.util.List;
 public class GetRecommendedProductListRes {
     private boolean hasNextPage;
     private int lastProductId;
+    private String lastUpdatedAt;
     private List<RecommendedProduct> productList;
 }
