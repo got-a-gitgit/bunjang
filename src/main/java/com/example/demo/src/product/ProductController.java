@@ -48,6 +48,7 @@ public class ProductController {
 
         //jwt 인증
         int userId= jwtService.getUserId();
+        postProductReq.setUserId(userId);
 
         List<MultipartFile> images= postProductReq.getImages();
 
@@ -90,7 +91,7 @@ public class ProductController {
     /**
      * 상품 상제페이지 API
      * [GET] /products/:product-id
-     * @return BaseResponse<>
+     * @return BaseResponse<GetProductRes>
      */
     @ResponseBody
     @GetMapping("/{product-id}")
@@ -105,6 +106,50 @@ public class ProductController {
             //상품 조회
             GetProductRes getProductRes = productProvider.getProduct(productId);
             return new BaseResponse<>(getProductRes);
+        } catch(BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
+     * 상점 판매상품 조회 API
+     * [GET] /products/stores?store-id=스토어id&last-product-id=마지막상품id
+     * @return BaseResponse<GetProductListRes>
+     */
+    @ResponseBody
+    @GetMapping("/stores")
+    public BaseResponse<GetStoreProductListRes> getProductListByStoreId(@RequestParam(value = "store-id", required = true) int storeId,
+                                                                        @RequestParam(value="size",required = false, defaultValue = "-1") Integer size,
+                                                                        @RequestParam(value = "last-product-id", required = false, defaultValue = "-1") Integer lastProductId,
+                                                                        @RequestParam(value="last-updated-at", required = false)String lastUpdatedAt) throws BaseException {
+        //jwt 인증
+        int userId= jwtService.getUserId();
+
+        try{
+            //상점 판매상품 조회
+            GetStoreProductListRes getStoreProductListRes = productProvider.getStoreProductListByStoreId(userId, storeId, lastUpdatedAt, lastProductId,size);
+            return new BaseResponse<>(getStoreProductListRes);
+        } catch(BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
+     * 홈 화면 추천 상품 조회 API
+     * [GET] /products
+     * @return BaseResponse<>
+     */
+    @ResponseBody
+    @GetMapping("")
+    public BaseResponse<GetRecommendedProductListRes> getProductList(@RequestParam(value = "last-updated-at", required = false) String lastUpdatedAt,
+                                                                     @RequestParam(value = "last-product-id", required = false, defaultValue = "-1") Integer lastProductId) throws BaseException {
+        //jwt 인증
+        int userId= jwtService.getUserId();
+
+        try{
+            //추천 상품 조회
+            GetRecommendedProductListRes getRecommendedProductListRes = productProvider.getProductList(userId, lastUpdatedAt, lastProductId);
+            return new BaseResponse<>(getRecommendedProductListRes);
         } catch(BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }

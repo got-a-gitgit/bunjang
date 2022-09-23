@@ -2,7 +2,6 @@ package com.example.demo.src.product;
 
 
 import com.example.demo.config.BaseException;
-import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.src.product.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -27,6 +26,7 @@ public class ProductDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    /**상품 등록**/
     public int createProduct(PostProductReq postProductReq){
         String createProductQuery = "insert into product("+
                 "name, " +
@@ -62,8 +62,8 @@ public class ProductDao {
         return this.jdbcTemplate.queryForObject(lastInserIdQuery,int.class);
     }
 
+    /**태그 등록**/
     public List<Integer> createTags(List<String> tags) {
-//        String createTagsQuery = "INSERT INTO tag(name) SELECT ? FROM dual WHERE NOT EXISTS(SELECT name FROM tag WHERE name = ?)";
         String createTagsQuery = "INSERT IGNORE INTO tag(name) value (?)";
         List<Integer> tagIds = new ArrayList<>();
 
@@ -84,17 +84,9 @@ public class ProductDao {
         return tagIds;
     }
 
+    /**태그와 상품 연결**/
     public int createProductTags(int productId, List<Integer> tagIds) {
         String query = "INSERT IGNORE INTO product_tag (product_id, tag_id) VALUES (?,?) ";
-
-//        int numOfAffectedRows=0;
-//        for (int i = 0; i < tagIds.size(); i++) {
-//            Object[] params = new Object[]{productId, tagIds.get(i)};
-//            jdbcTemplate.update(query, params);
-//        }
-//
-//        return numOfAffectedRows;
-
         return this.jdbcTemplate.batchUpdate(query, new BatchPreparedStatementSetter() {
 
                 @Override
@@ -111,7 +103,7 @@ public class ProductDao {
 
     }
 
-
+    /**상품 이미지 등록**/
     public int createProductImages(int productId, List<String> productImages) {
         String query = "INSERT INTO product_image (product_id, url) VALUES (?,?) ";
 
@@ -129,11 +121,13 @@ public class ProductDao {
 
     }
 
+    /**상품 삭제**/
     public int deleteProduct(int productId) {
         String query = "UPDATE product SET status = 'D' WHERE product_id=? AND status!='D'";
         return this.jdbcTemplate.update(query, productId);
     }
 
+    /**상품 상세 조회**/
     public GetProductRes getProduct(int productId) throws BaseException {
         String query = "SELECT " +
                 "p.product_id as product_id, " +
@@ -186,6 +180,7 @@ public class ProductDao {
         }
     }
 
+    /**상품 이미지 조회**/
     public List<String> getProductImages(int productId) {
         String query = "SELECT url\n" +
                 "FROM product p\n" +
@@ -198,6 +193,7 @@ public class ProductDao {
                 ),productId);
     }
 
+    /**상품 태그 조회**/
     public List<String> getProductTags(int productId) {
         String query = "SELECT t.name as tag\n" +
                 "FROM product p\n" +
@@ -211,9 +207,234 @@ public class ProductDao {
                 ),productId);
     }
 
+    /**상품 조회수 증가**/
     public void increaseProductView(int productId, int view) {
         String query = "UPDATE product SET view = ? WHERE product_id=?";
         Object[] params = new Object[]{view,productId};
         this.jdbcTemplate.update(query, params);
+    }
+
+    /**상점 상품목록 조회 with 무한스크롤**/
+    public List<StoreProductRes> getProductListByStoreId(int userId, int storeId, String lastUpdatedAt, Integer lastProductId, Integer size) {
+        String query = "SELECT p.product_id as product_id,\n" +
+                "       p.user_id    as user_id,\n" +
+                "       price,\n" +
+                "       name,\n" +
+                "       safe_payment_flag,\n" +
+                "        CASE\n" +
+                "            WHEN w.status ='Y' THEN 'Y'\n" +
+                "            ELSE 'N'\n" +
+                "        END as wish,\n" +
+                "        pi.url as image,\n" +
+                "        p.updated_at as updated_at,\n" +
+                "        p.status as status\n" +
+                "FROM product p\n" +
+                "         LEFT JOIN (SELECT product_id, status\n" +
+                "                    FROM wish\n" +
+                "                    WHERE user_id = ?) w on p.product_id = w.product_id\n" +
+                "         LEFT JOIN (SELECT url, MIN(product_image_id), product_id\n" +
+                "               FROM product_image\n" +
+                "               GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
+                "WHERE p.user_id = ? AND p.status!='D' AND (p.updated_at<? OR (p.updated_at=? AND p.product_id>?))\n"+
+                "order by p.updated_at DESC, p.product_id DESC\n" +
+                "LIMIT ?";
+
+        Object[] params = new Object[]{userId, storeId, lastUpdatedAt, lastUpdatedAt,lastProductId, size};
+        return this.jdbcTemplate.query(query,
+                (rs,rowNum)->new StoreProductRes(
+                    rs.getInt("product_id"),
+                    rs.getInt("user_id"),
+                    rs.getInt("price"),
+                        rs.getString("image"),
+                        rs.getString("name"),
+                        rs.getString("safe_payment_flag"),
+                        rs.getString("wish"),
+                        rs.getString("updated_at"),
+                        rs.getString("status")
+                ),
+                params);
+    }
+
+    /**상점 상품목록 첫번째 페이지 조회 with 무한스크롤**/
+    public List<StoreProductRes> getFirstProductListByStoreId(int userId, int storeId, Integer size) {
+        String query = "SELECT p.product_id as product_id,\n" +
+                "       p.user_id    as user_id,\n" +
+                "       price,\n" +
+                "       name,\n" +
+                "       safe_payment_flag,\n" +
+                "        CASE\n" +
+                "            WHEN w.status ='Y' THEN 'Y'\n" +
+                "            ELSE 'N'\n" +
+                "        END as wish,\n" +
+                "        pi.url as image,\n" +
+                "        p.updated_at as updated_at,\n" +
+                "        p.status as status\n" +
+                "FROM product p\n" +
+                "         LEFT JOIN (SELECT product_id, status\n" +
+                "                    FROM wish\n" +
+                "                    WHERE user_id = ?) w on p.product_id = w.product_id\n" +
+                "         LEFT JOIN (SELECT url, MIN(product_image_id), product_id\n" +
+                "               FROM product_image\n" +
+                "               GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
+                "WHERE p.user_id = ? AND p.status!='D'"+
+                "order by p.created_at DESC, p.product_id DESC\n" +
+                "LIMIT ?";
+
+        Object[] params = new Object[]{userId, storeId, size};
+        return this.jdbcTemplate.query(query,
+                (rs,rowNum)->new StoreProductRes(
+                        rs.getInt("product_id"),
+                        rs.getInt("user_id"),
+                        rs.getInt("price"),
+                        rs.getString("image"),
+                        rs.getString("name"),
+                        rs.getString("safe_payment_flag"),
+                        rs.getString("wish"),
+                        rs.getString("updated_at"),
+                        rs.getString("status")
+                ),
+                params);
+    }
+
+    /**상점 상품목록 조회 without 무한스크롤**/
+    public List<StoreProductRes> getWholeProductListByStoreId(int userId, int storeId) {
+        String query = "SELECT p.product_id as product_id,\n" +
+                "       p.user_id    as user_id,\n" +
+                "       price,\n" +
+                "       name,\n" +
+                "       safe_payment_flag,\n" +
+                "        CASE\n" +
+                "            WHEN w.status ='Y' THEN 'Y'\n" +
+                "            ELSE 'N'\n" +
+                "        END as wish,\n" +
+                "        pi.url as image,\n" +
+                "        p.updated_at as updated_at,\n" +
+                "        p.status as status\n" +
+                "FROM product p\n" +
+                "         LEFT JOIN (SELECT product_id, status\n" +
+                "                    FROM wish\n" +
+                "                    WHERE user_id = ?) w on p.product_id = w.product_id\n" +
+                "         LEFT JOIN (SELECT url, MIN(product_image_id), product_id\n" +
+                "               FROM product_image\n" +
+                "               GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
+                "WHERE p.user_id = ? AND p.status!='D'" +
+                "order by p.created_at DESC, p.product_id DESC\n";
+
+        Object[] params = new Object[]{userId, storeId};
+        return this.jdbcTemplate.query(query,
+                (rs, rowNum) -> new StoreProductRes(
+                        rs.getInt("product_id"),
+                        rs.getInt("user_id"),
+                        rs.getInt("price"),
+                        rs.getString("image"),
+                        rs.getString("name"),
+                        rs.getString("safe_payment_flag"),
+                        rs.getString("wish"),
+                        rs.getString("updated_at"),
+                        rs.getString("status")
+                ),
+                params);
+    }
+
+    /**홈 화면 추천상품목록 첫 페이지 조회 with 무한스크롤**/
+    public List<RecommendedProduct> getFirstProductList(int userId) {
+        String query = "SELECT p.product_id as product_id, " +
+                "user_id, " +
+                "pi.url as image,\n" +
+                "       CASE\n" +
+                "           WHEN w.status ='Y' THEN 'Y'\n" +
+                "           ELSE 'N'\n" +
+                "        END as wish,\n" +
+                "price, " +
+                "name, " +
+                "location, " +
+                "p.updated_at as updated_at, " +
+                "safe_payment_flag,\n" +
+                "    CASE\n" +
+                "        WHEN ISNULL(wc.wishes) THEN 0\n" +
+                "        ELSE wc.wishes\n" +
+                "    END as wishes,\n" +
+                "p.status as status\n"+
+                "FROM product p\n" +
+                "         LEFT JOIN(SELECT product_id, status\n" +
+                "                   FROM wish\n" +
+                "                   WHERE user_id = ?) w on p.product_id = w.product_id\n" +
+                "         LEFT JOIN(SELECT url, MIN(product_image_id), product_id\n" +
+                "                   FROM product_image\n" +
+                "                   GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
+                "         LEFT JOIN(SELECT product_id, COUNT(product_id) as wishes\n" +
+                "                   FROM wish\n" +
+                "                   GROUP BY product_id) as wc on p.product_id = wc.product_id\n" +
+                "WHERE p.status!='D'"+
+                "ORDER BY p.updated_at DESC, p.product_id DESC\n" +
+                "LIMIT 21";
+
+        return this.jdbcTemplate.query(query,
+                (rs,rowNum)->new RecommendedProduct(
+                        rs.getInt("product_id"),
+                        rs.getInt("user_id"),
+                        rs.getString("image"),
+                        rs.getString("wish"),
+                        rs.getInt("price"),
+                        rs.getString("name"),
+                        rs.getString("location"),
+                        rs.getString("updated_at"),
+                        rs.getString("safe_payment_flag"),
+                        rs.getInt("wishes"),
+                        rs.getString("status")
+                ),
+                userId);
+    }
+
+    /**홈 화면 추천상품목록 조회 with 무한스크롤**/
+    public List<RecommendedProduct> getProductList(int userId, String lastUpdatedAt, Integer lastProductId) {
+        String query = "SELECT p.product_id as product_id, " +
+                "user_id, " +
+                "pi.url as image,\n" +
+                "       CASE\n" +
+                "           WHEN w.status ='Y' THEN 'Y'\n" +
+                "           ELSE 'N'\n" +
+                "        END as wish,\n" +
+                "price, " +
+                "name, " +
+                "location, " +
+                "p.created_at as created_at, " +
+                "safe_payment_flag,\n" +
+                "    CASE\n" +
+                "        WHEN ISNULL(wc.wishes) THEN 0\n" +
+                "        ELSE wc.wishes\n" +
+                "    END as wishes,\n" +
+                "p.status as status\n"+
+                "FROM product p\n" +
+                "         LEFT JOIN(SELECT product_id, status\n" +
+                "                   FROM wish\n" +
+                "                   WHERE user_id = ?) w on p.product_id = w.product_id\n" +
+                "         LEFT JOIN(SELECT url, MIN(product_image_id), product_id\n" +
+                "                   FROM product_image\n" +
+                "                   GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
+                "         LEFT JOIN(SELECT product_id, COUNT(product_id) as wishes\n" +
+                "                   FROM wish\n" +
+                "                   GROUP BY product_id) as wc on p.product_id = wc.product_id\n" +
+                "WHERE p.status!='D' AND (p.updated_at<? OR (p.updated_at=? AND p.product_id>?))\n"+
+                "ORDER BY p.updated_at DESC, p.product_id DESC\n" +
+                "LIMIT 21";
+
+        Object[] params = new Object[]{userId, lastUpdatedAt, lastUpdatedAt, lastProductId};
+
+        return this.jdbcTemplate.query(query,
+                (rs,rowNum)->new RecommendedProduct(
+                        rs.getInt("product_id"),
+                        rs.getInt("user_id"),
+                        rs.getString("image"),
+                        rs.getString("wish"),
+                        rs.getInt("price"),
+                        rs.getString("name"),
+                        rs.getString("location"),
+                        rs.getString("created_at"),
+                        rs.getString("safe_payment_flag"),
+                        rs.getInt("wishes"),
+                        rs.getString("status")
+                ),
+                params);
     }
 }
