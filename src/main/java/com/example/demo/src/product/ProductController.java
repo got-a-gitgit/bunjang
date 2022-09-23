@@ -119,8 +119,8 @@ public class ProductController {
     @ResponseBody
     @GetMapping("/stores")
     public BaseResponse<GetStoreProductListRes> getProductListByStoreId(@RequestParam(value = "store-id", required = true) int storeId,
-                                                                        @RequestParam(value = "last-product-id", required = false, defaultValue = "-1") Integer lastProductId,
                                                                         @RequestParam(value="size",required = false, defaultValue = "-1") Integer size,
+                                                                        @RequestParam(value = "last-product-id", required = false, defaultValue = "-1") Integer lastProductId,
                                                                         @RequestParam(value="last-updated-at", required = false)String lastUpdatedAt) throws BaseException {
         //jwt 인증
         int userId= jwtService.getUserId();

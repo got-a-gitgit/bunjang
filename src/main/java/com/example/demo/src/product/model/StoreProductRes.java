@@ -18,4 +18,5 @@ public class StoreProductRes {
     private String safePayment;
     private String wish;
     private String updatedAt;
+    private String status;
 }

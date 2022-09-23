@@ -226,7 +226,8 @@ public class ProductDao {
                 "            ELSE 'N'\n" +
                 "        END as wish,\n" +
                 "        pi.url as image,\n" +
-                "        p.updated_at as updated_at\n" +
+                "        p.updated_at as updated_at,\n" +
+                "        p.status as status\n" +
                 "FROM product p\n" +
                 "         LEFT JOIN (SELECT product_id, status\n" +
                 "                    FROM wish\n" +
@@ -235,7 +236,7 @@ public class ProductDao {
                 "               FROM product_image\n" +
                 "               GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
                 "WHERE p.user_id = ? AND p.status!='D' AND (p.updated_at<? OR (p.updated_at=? AND p.product_id>?))\n"+
-                "order by p.updated_at DESC\n" +
+                "order by p.updated_at DESC, p.product_id DESC\n" +
                 "LIMIT ?";
 
         Object[] params = new Object[]{userId, storeId, lastUpdatedAt, lastUpdatedAt,lastProductId, size};
@@ -248,7 +249,8 @@ public class ProductDao {
                         rs.getString("name"),
                         rs.getString("safe_payment_flag"),
                         rs.getString("wish"),
-                        rs.getString("updated_at")
+                        rs.getString("updated_at"),
+                        rs.getString("status")
                 ),
                 params);
     }
@@ -265,7 +267,8 @@ public class ProductDao {
                 "            ELSE 'N'\n" +
                 "        END as wish,\n" +
                 "        pi.url as image,\n" +
-                "        p.updated_at as updated_at\n" +
+                "        p.updated_at as updated_at,\n" +
+                "        p.status as status\n" +
                 "FROM product p\n" +
                 "         LEFT JOIN (SELECT product_id, status\n" +
                 "                    FROM wish\n" +
@@ -274,7 +277,7 @@ public class ProductDao {
                 "               FROM product_image\n" +
                 "               GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
                 "WHERE p.user_id = ? AND p.status!='D'"+
-                "order by p.product_id DESC\n" +
+                "order by p.created_at DESC, p.product_id DESC\n" +
                 "LIMIT ?";
 
         Object[] params = new Object[]{userId, storeId, size};
@@ -287,7 +290,8 @@ public class ProductDao {
                         rs.getString("name"),
                         rs.getString("safe_payment_flag"),
                         rs.getString("wish"),
-                        rs.getString("updated_at")
+                        rs.getString("updated_at"),
+                        rs.getString("status")
                 ),
                 params);
     }
@@ -304,7 +308,8 @@ public class ProductDao {
                 "            ELSE 'N'\n" +
                 "        END as wish,\n" +
                 "        pi.url as image,\n" +
-                "        p.updated_at as updated_at\n" +
+                "        p.updated_at as updated_at,\n" +
+                "        p.status as status\n" +
                 "FROM product p\n" +
                 "         LEFT JOIN (SELECT product_id, status\n" +
                 "                    FROM wish\n" +
@@ -313,7 +318,7 @@ public class ProductDao {
                 "               FROM product_image\n" +
                 "               GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
                 "WHERE p.user_id = ? AND p.status!='D'" +
-                "order by p.product_id DESC\n";
+                "order by p.created_at DESC, p.product_id DESC\n";
 
         Object[] params = new Object[]{userId, storeId};
         return this.jdbcTemplate.query(query,
@@ -325,7 +330,8 @@ public class ProductDao {
                         rs.getString("name"),
                         rs.getString("safe_payment_flag"),
                         rs.getString("wish"),
-                        rs.getString("updated_at")
+                        rs.getString("updated_at"),
+                        rs.getString("status")
                 ),
                 params);
     }
