@@ -14,5 +14,6 @@ import java.util.List;
 public class GetStoreProductListRes {
     private boolean hasNextPage;
     private int lastProductId;
-    private List<GetStoreProductRes> productList;
+    private String lastUpdatedAt;
+    private List<StoreProductRes> productList;
 }

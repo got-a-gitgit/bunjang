@@ -49,10 +49,10 @@ public class ProductProvider {
     }
 
     /** 상점 판매 상품 목록 조회 **/
-    public GetStoreProductListRes getStoreProductListByStoreId(int userId, int storeId, int lastProductId, Integer size) throws BaseException {
+    public GetStoreProductListRes getStoreProductListByStoreId(int userId, int storeId, String lastUpdatedAt, int lastProductId, Integer size) throws BaseException {
         try{
             GetStoreProductListRes getStoreProductListRes = new GetStoreProductListRes();
-            List<GetStoreProductRes> productList;
+            List<StoreProductRes> productList;
 
             //무한 스크롤 여부 구분
             if (size == -1) {
@@ -64,7 +64,7 @@ public class ProductProvider {
                 if (lastProductId == -1) {
                     productList = productDao.getFirstProductListByStoreId(userId, storeId, size);
                 } else {
-                    productList = productDao.getProductListByStoreId(userId, storeId, lastProductId,size);
+                    productList = productDao.getProductListByStoreId(userId, storeId, lastUpdatedAt, lastProductId,size);
                 }
 
                 //다음 페이지 존재 여부 입력
@@ -80,6 +80,10 @@ public class ProductProvider {
                 productList = getStoreProductListRes.getProductList();
                 int newLastProductId = productList.get(productList.size() - 1).getProductId();
                 getStoreProductListRes.setLastProductId(newLastProductId);
+
+                //마지막 게시물 수정 timestamp 입력
+                String newLastUpdatedAt = productList.get(productList.size() - 1).getUpdatedAt();
+                getStoreProductListRes.setLastUpdatedAt(newLastUpdatedAt);
             }
             return getStoreProductListRes;
         } catch (Exception exception) {

@@ -118,14 +118,16 @@ public class ProductController {
      */
     @ResponseBody
     @GetMapping("/stores")
-    public BaseResponse<GetStoreProductListRes> getProductListByStoreId(@RequestParam(value = "store-id", required = true) int storeId, @RequestParam(value = "last-product-id", required = false, defaultValue = "-1") Integer lastProductId,
-                                                                        @RequestParam(value="size",required = false, defaultValue = "-1") Integer size) throws BaseException {
+    public BaseResponse<GetStoreProductListRes> getProductListByStoreId(@RequestParam(value = "store-id", required = true) int storeId,
+                                                                        @RequestParam(value = "last-product-id", required = false, defaultValue = "-1") Integer lastProductId,
+                                                                        @RequestParam(value="size",required = false, defaultValue = "-1") Integer size,
+                                                                        @RequestParam(value="last-updated-at", required = false)String lastUpdatedAt) throws BaseException {
         //jwt 인증
         int userId= jwtService.getUserId();
 
         try{
             //상점 판매상품 조회
-            GetStoreProductListRes getStoreProductListRes = productProvider.getStoreProductListByStoreId(userId, storeId, lastProductId,size);
+            GetStoreProductListRes getStoreProductListRes = productProvider.getStoreProductListByStoreId(userId, storeId, lastUpdatedAt, lastProductId,size);
             return new BaseResponse<>(getStoreProductListRes);
         } catch(BaseException exception){
             return new BaseResponse<>(exception.getStatus());
