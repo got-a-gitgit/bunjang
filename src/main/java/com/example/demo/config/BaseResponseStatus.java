@@ -46,6 +46,9 @@ public enum BaseResponseStatus {
     // 410-50 미치
     DUPLICATE_STORE_NAME(false, 411, "사용 중인 상점명입니다."),
     FAIL_FOLLOW_STORE(false, 412, "팔로우 실패했습니다."),
+    FAIL_GET_WISHES(false, 413, "관심상품 조회에 실패했습니다."),
+    FAIL_GET_REVIEWS(false, 414, "거래 후기 조회에 실패했습니다."),
+
 
 
     // 451-499 조이
