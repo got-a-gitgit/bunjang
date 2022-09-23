@@ -437,4 +437,21 @@ public class ProductDao {
                 ),
                 params);
     }
+
+    public List<Category> getCategoryList(int categoryId) {
+        String query = "SELECT category_id, " +
+                "name, " +
+                "end_flag\n" +
+                "FROM category\n" +
+                "WHERE parent_id = ?";
+
+            return this.jdbcTemplate.query(query,
+                    (rs, rowNum) -> new Category(
+                            rs.getInt("category_id"),
+                            rs.getString("name"),
+                            rs.getString("end_flag")
+                    ),
+                    categoryId);
+
+    }
 }
