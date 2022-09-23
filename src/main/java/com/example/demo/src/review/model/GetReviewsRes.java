@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class GetReviewsRes {
+    private int reviewCount;
     private List<ReviewInfo> reviewInfoList;
     private boolean hasNextPage;
     private int lastReviewId;

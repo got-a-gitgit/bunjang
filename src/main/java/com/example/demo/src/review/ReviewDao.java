@@ -19,6 +19,7 @@ public class ReviewDao {
     }
 
     // Insert SQL
+
     public void insertReview(int userId, int storeId, PostReviewReq postReviewReq){
         String query = "INSERT INTO review(reviewer_id, target_user_id, rating, content) " +
                         "VALUES(?, ?, ?, ?) ";
@@ -54,5 +55,13 @@ public class ReviewDao {
                         rs.getString("name")),
                 reviewsParams);
     }
+
+    public int selectReviewCount(int storeId){
+        String query = "SELECT COUNT(*) AS reviewCount FROM review " +
+                        "WHERE target_user_id = ?";
+
+        return this.jdbcTemplate.queryForObject(query, int.class, storeId);
+    }
+
 
 }

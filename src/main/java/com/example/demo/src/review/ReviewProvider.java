@@ -35,6 +35,7 @@ public class ReviewProvider {
         }
 
         try {
+            int reviewCount = reviewDao.selectReviewCount(storeId);
             List<ReviewInfo> reviewInfo =  reviewDao.selectReviews(storeId, reviewId, date, size);
             int lastReviewId = 0;
             String lastRegisteredDate = "";
@@ -50,7 +51,7 @@ public class ReviewProvider {
                 lastRegisteredDate = reviewInfo.get(size-1).getRegisteredDate();  // 마지막 데이터 날짜
             }
 
-            return new GetReviewsRes(reviewInfo, hasNextPage, lastReviewId, lastRegisteredDate);
+            return new GetReviewsRes(reviewCount, reviewInfo, hasNextPage, lastReviewId, lastRegisteredDate);
 
         } catch (Exception e){
             logger.error("GetReviews Error", e);
