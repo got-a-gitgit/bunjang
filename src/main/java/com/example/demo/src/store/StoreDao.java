@@ -3,7 +3,7 @@ package com.example.demo.src.store;
 import com.example.demo.src.store.model.GetFollowRes;
 import com.example.demo.src.store.model.PatchStoreProfileReq;
 import com.example.demo.src.store.model.PatchStoreProfileRes;
-import com.example.demo.src.store.model.Product;
+import com.example.demo.src.store.model.ProductInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -123,13 +123,13 @@ public class StoreDao {
     }
 
     /** 상점별 판매목록 3개 가져오기 **/
-    public List<Product> selectProductsByStore(int userId){
+    public List<ProductInfo> selectProductsByStore(int userId){
         String query = "SELECT user_id, p.product_id, pi.url, price " +
                         "FROM product p " +
                         "INNER JOIN product_image pi ON p.product_id = pi.product_id " +
                         "WHERE user_id = ? AND p.status= 'S' LIMIT 3";
         return this.jdbcTemplate.query(query,
-                (rs, rowNum) -> new Product(
+                (rs, rowNum) -> new ProductInfo(
                         rs.getInt("p.product_id"),
                         rs.getString("pi.url"),
                         rs.getInt("price")

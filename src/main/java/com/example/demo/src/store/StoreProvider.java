@@ -3,7 +3,7 @@ package com.example.demo.src.store;
 import com.example.demo.config.BaseException;
 import com.example.demo.src.store.model.GetFollowRes;
 import com.example.demo.src.store.model.PatchStoreProfileRes;
-import com.example.demo.src.store.model.Product;
+import com.example.demo.src.store.model.ProductInfo;
 import com.example.demo.utils.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,8 +86,8 @@ public class StoreProvider {
         try {
             List<GetFollowRes> result = storeDao.selectFollowings(storeId, lastId);
             for (GetFollowRes store : result){
-                List<Product> products = storeDao.selectProductsByStore(store.getUserId());
-                store.setProductList(products);
+                List<ProductInfo> products = storeDao.selectProductsByStore(store.getUserId());
+                store.setProductInfoList(products);
             }
             return result;
         } catch (Exception e) {
