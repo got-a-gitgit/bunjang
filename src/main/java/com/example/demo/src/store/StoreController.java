@@ -2,10 +2,7 @@ package com.example.demo.src.store;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
-import com.example.demo.src.store.model.GetFollowRes;
-import com.example.demo.src.store.model.PatchStoreProfileRes;
-import com.example.demo.src.store.model.PostStoreNameReq;
-import com.example.demo.src.store.model.PatchStoreProfileReq;
+import com.example.demo.src.store.model.*;
 import com.example.demo.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -49,6 +46,21 @@ public class StoreController {
     }
 
     /**
+     * 상점 정보 조회 API
+     * [GET] /stores/{store_id}
+     * @return BaseResponse<GetStoreInfoRes>
+     */
+    @ResponseBody
+    @GetMapping("/{store_id}")
+    public BaseResponse<GetStoreInfoRes> getStoreInfo(@PathVariable("store_id") int storeId) throws BaseException{
+
+        GetStoreInfoRes result = storeProvider.getStoreInfo(storeId);
+
+        return new BaseResponse<>(result);
+
+    }
+
+    /**
      * 상점 소개 수정 API
      * [POST] /stores
      * @return BaseResponse<PatchStoreProfileReq>
@@ -67,7 +79,7 @@ public class StoreController {
 
     /**
      * 상점 팔로우 API
-     * [POST] /stores/:store-id/followed
+     * [POST] /stores/{store-id}/followed
      * @return BaseResponse<String>
      */
     @ResponseBody

@@ -2,6 +2,7 @@ package com.example.demo.src.store;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.src.store.model.GetFollowRes;
+import com.example.demo.src.store.model.GetStoreInfoRes;
 import com.example.demo.src.store.model.PatchStoreProfileRes;
 import com.example.demo.src.store.model.ProductInfo;
 import com.example.demo.utils.JwtService;
@@ -12,8 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.example.demo.config.BaseResponseStatus.DATABASE_ERROR;
-import static com.example.demo.config.BaseResponseStatus.INVALID_ACCESS;
+import static com.example.demo.config.BaseResponseStatus.*;
 
 @Service
 public class StoreProvider {
@@ -58,10 +58,25 @@ public class StoreProvider {
         }
     }
 
+    /** 상점 정보 조회 **/
+    public GetStoreInfoRes getStoreInfo(int storeId) throws BaseException {
+        // 유효한 유저인지 확인
+        int isUser = checkUserId(storeId);
+        if (isUser == 0) {
+            throw new BaseException(INVALID_ACCESS);
+        }
+
+        try {
+            return storeDao.selectStoreInfo(storeId);
+        } catch (Exception e){
+            logger.error("GetStoreProfile Error", e);
+            throw new BaseException(FAIL_GET_STOREINFO);
+        }
+    }
+
     /** 상점의 팔로워 목록 조회 **/
     public List<GetFollowRes> getFollowers(int storeId, int lastId) throws BaseException {
-
-        // 유효한 (팔로우)유저인지 확인
+        // 유효한 유저인지 확인
         int isUser = checkUserId(storeId);
         if (isUser == 0) {
             throw new BaseException(INVALID_ACCESS);
@@ -76,8 +91,7 @@ public class StoreProvider {
 
     /** 상점의 팔로잉 목록 조회 **/
     public List<GetFollowRes> getFollowings(int storeId, int lastId) throws BaseException {
-
-        // 유효한 (팔로우)유저인지 확인
+        // 유효한 유저인지 확인
         int isUser = checkUserId(storeId);
         if (isUser == 0) {
             throw new BaseException(INVALID_ACCESS);

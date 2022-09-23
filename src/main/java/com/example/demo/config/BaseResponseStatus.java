@@ -48,6 +48,7 @@ public enum BaseResponseStatus {
     FAIL_FOLLOW_STORE(false, 412, "팔로우 실패했습니다."),
     FAIL_GET_WISHES(false, 413, "관심상품 조회에 실패했습니다."),
     FAIL_GET_REVIEWS(false, 414, "거래 후기 조회에 실패했습니다."),
+    FAIL_GET_STOREINFO(false, 415, "상점 정보 조회에 실패했습니다."),
 
 
 

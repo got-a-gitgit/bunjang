@@ -1,9 +1,6 @@
 package com.example.demo.src.store;
 
-import com.example.demo.src.store.model.GetFollowRes;
-import com.example.demo.src.store.model.PatchStoreProfileReq;
-import com.example.demo.src.store.model.PatchStoreProfileRes;
-import com.example.demo.src.store.model.ProductInfo;
+import com.example.demo.src.store.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -72,6 +69,38 @@ public class StoreDao {
                 userId);
     }
 
+    /** 상점 정보 전체 조회 **/
+    public GetStoreInfoRes selectStoreInfo(int userId) {
+        String query = "SELECT store_name, profile_image_url, description, s.created_at, authentication_flag, " +
+                        "ROUND(AVG(rating), 1) AS rating, trade, follower, followee " +
+                        "FROM store s " +
+                        "INNER JOIN review r ON s.user_id = r.target_user_id " +
+                        "INNER JOIN (SELECT COUNT(*) AS trade " +
+                        "FROM trade " +
+                        "WHERE seller_id = ? AND status = 'F') trade_tb " +
+                        "INNER JOIN (SELECT COUNT(*) AS follower " +
+                        "FROM follow " +
+                        "WHERE follower = ?) follower_tb " +
+                        "INNER JOIN (SELECT COUNT(*) AS followee " +
+                        "FROM follow " +
+                        "WHERE followee = ?) followee_tb " +
+                        "WHERE user_id = ?";
+
+        Object[] queryParams = new Object[]{userId, userId, userId, userId};
+
+        return this.jdbcTemplate.queryForObject(query,
+                (rs, rowNum) -> new GetStoreInfoRes(
+                        rs.getString("store_name"),
+                        rs.getString("profile_image_url"),
+                        rs.getString("description"),
+                        rs.getFloat("rating"),
+                        rs.getInt("trade"),
+                        rs.getInt("follower"),
+                        rs.getInt("followee"),
+                        rs.getString("s.created_at"),
+                        rs.getString("authentication_flag")),
+                queryParams);
+    }
 
     /** 팔로워 목록 조회 **/
     public List<GetFollowRes> selectFollowers(int storeId, int lastId){
