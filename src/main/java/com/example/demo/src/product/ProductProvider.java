@@ -127,4 +127,20 @@ public class ProductProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public GetCategoryListRes getCategoryList(int categoryId) throws BaseException {
+        try {
+            //하위 카테고리 목록 조회
+            List<Category> subcategoryList = productDao.getCategoryList(categoryId);
+
+            //불러온 값이 없으면 예외 발생
+            if(subcategoryList.size()==0) throw new BaseException(NO_MORE_SUBCATEGORY);
+
+            return new GetCategoryListRes(categoryId, subcategoryList);
+        } catch (BaseException baseException) {
+            throw baseException;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }
