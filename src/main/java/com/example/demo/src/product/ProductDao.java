@@ -2,7 +2,6 @@ package com.example.demo.src.product;
 
 
 import com.example.demo.config.BaseException;
-import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.src.product.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -217,7 +216,7 @@ public class ProductDao {
         this.jdbcTemplate.update(query, params);
     }
 
-    public List<ProductListElement> getProductListByStoreId(int userId, int storeId, Integer lastProductId) {
+    public List<GetStoreProductRes> getProductListByStoreId(int userId, int storeId, Integer lastProductId, Integer size) {
         String query = "SELECT p.product_id as product_id,\n" +
                 "       p.user_id    as user_id,\n" +
                 "       price,\n" +
@@ -237,11 +236,11 @@ public class ProductDao {
                 "               GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
                 "WHERE p.user_id = ? AND p.product_id<? AND p.status!='D'\n"+
                 "order by p.product_id DESC\n" +
-                "LIMIT 20";
+                "LIMIT ?";
 
-        Object[] params = new Object[]{userId, storeId, lastProductId};
+        Object[] params = new Object[]{userId, storeId, lastProductId, size};
         return this.jdbcTemplate.query(query,
-                (rs,rowNum)->new ProductListElement(
+                (rs,rowNum)->new GetStoreProductRes(
                     rs.getInt("product_id"),
                     rs.getInt("user_id"),
                     rs.getInt("price"),
@@ -253,7 +252,7 @@ public class ProductDao {
                 params);
     }
 
-    public List<ProductListElement> getFirstProductListByStoreId(int userId, int storeId) {
+    public List<GetStoreProductRes> getFirstProductListByStoreId(int userId, int storeId, Integer size) {
         String query = "SELECT p.product_id as product_id,\n" +
                 "       p.user_id    as user_id,\n" +
                 "       price,\n" +
@@ -273,11 +272,11 @@ public class ProductDao {
                 "               GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
                 "WHERE p.user_id = ? AND p.status!='D'"+
                 "order by p.product_id DESC\n" +
-                "LIMIT 21";
+                "LIMIT ?";
 
-        Object[] params = new Object[]{userId, storeId};
+        Object[] params = new Object[]{userId, storeId, size};
         return this.jdbcTemplate.query(query,
-                (rs,rowNum)->new ProductListElement(
+                (rs,rowNum)->new GetStoreProductRes(
                         rs.getInt("product_id"),
                         rs.getInt("user_id"),
                         rs.getInt("price"),
@@ -381,6 +380,40 @@ public class ProductDao {
                         rs.getString("safe_payment_flag"),
                         rs.getInt("wishes")
                 ),
+                params);
+    }
+
+    public List<GetStoreProductRes> getWholeProductListByStoreId(int userId, int storeId) {
+        String query = "SELECT p.product_id as product_id,\n" +
+                "       p.user_id    as user_id,\n" +
+                "       price,\n" +
+                "       name,\n" +
+                "       safe_payment_flag,\n" +
+                "        CASE\n" +
+                "            WHEN w.status ='Y' THEN 'Y'\n" +
+                "            ELSE 'N'\n" +
+                "        END as wish,\n" +
+                "        pi.url as image\n" +
+                "FROM product p\n" +
+                "         LEFT JOIN (SELECT product_id, status\n" +
+                "                    FROM wish\n" +
+                "                    WHERE user_id = ?) w on p.product_id = w.product_id\n" +
+                "         LEFT JOIN (SELECT url, MIN(product_image_id), product_id\n" +
+                "               FROM product_image\n" +
+                "               GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
+                "WHERE p.user_id = ? AND p.status!='D'" +
+                "order by p.product_id DESC\n";
+
+        Object[] params = new Object[]{userId, storeId};
+        return this.jdbcTemplate.query(query,
+                (rs, rowNum) -> new GetStoreProductRes(
+                        rs.getInt("product_id"),
+                        rs.getInt("user_id"),
+                        rs.getInt("price"),
+                        rs.getString("image"),
+                        rs.getString("name"),
+                        rs.getString("safe_payment_flag"),
+                        rs.getString("wish")),
                 params);
     }
 }

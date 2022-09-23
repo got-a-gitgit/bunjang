@@ -14,5 +14,5 @@ import java.util.List;
 public class GetStoreProductListRes {
     private boolean hasNextPage;
     private int lastProductId;
-    private List<ProductListElement> productList;
+    private List<GetStoreProductRes> productList;
 }

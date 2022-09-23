@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductListElement {
+public class GetStoreProductRes {
     private int productId;
     private int userId;
     private int price;
