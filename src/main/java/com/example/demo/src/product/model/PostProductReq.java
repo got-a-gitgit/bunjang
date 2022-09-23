@@ -22,7 +22,6 @@ public class PostProductReq {
     @NotBlank(message = "제목이 입력되지 않았습니다.")
     private String name;
 
-    @NotNull(message = "userId가 입력되지 않았습니다.")
     private Integer userId;
 
     @NotNull(message = "가격이 입력되지 않았습니다.")
