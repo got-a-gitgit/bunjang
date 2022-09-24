@@ -74,19 +74,14 @@ public class StoreDao {
         String query = "SELECT store_name, profile_image_url, description, s.created_at, authentication_flag, " +
                         "ROUND(AVG(rating), 1) AS rating, trade, follower, followee " +
                         "FROM store s " +
-                        "INNER JOIN review r ON s.user_id = r.target_user_id " +
-                        "INNER JOIN (SELECT COUNT(*) AS trade " +
-                        "FROM trade " +
-                        "WHERE seller_id = ? AND status = 'F') trade_tb " +
-                        "INNER JOIN (SELECT COUNT(*) AS follower " +
-                        "FROM follow " +
-                        "WHERE follower = ?) follower_tb " +
-                        "INNER JOIN (SELECT COUNT(*) AS followee " +
-                        "FROM follow " +
-                        "WHERE followee = ?) followee_tb " +
+                        "LEFT JOIN review r ON s.user_id = r.target_user_id " +
+                        "LEFT JOIN (SELECT seller_id, COUNT(seller_id) AS trade " +
+                        "FROM trade WHERE status = 'F' GROUP BY seller_id) trade_tb ON s.user_id = trade_tb.seller_id " +
+                        "LEFT JOIN (SELECT follower AS f, COUNT(follower) AS follower " +
+                        "FROM follow GROUP BY follower) follower_tb ON s.user_id = follower_tb.f " +
+                        "LEFT JOIN (SELECT followee AS f,COUNT(followee) AS followee " +
+                        "FROM follow GROUP BY followee) followee_tb ON s.user_id = followee_tb.f " +
                         "WHERE user_id = ?";
-
-        Object[] queryParams = new Object[]{userId, userId, userId, userId};
 
         return this.jdbcTemplate.queryForObject(query,
                 (rs, rowNum) -> new GetStoreInfoRes(
@@ -99,7 +94,7 @@ public class StoreDao {
                         rs.getInt("followee"),
                         rs.getString("s.created_at"),
                         rs.getString("authentication_flag")),
-                queryParams);
+                userId);
     }
 
     /** 상점 거래내역(판매) 조회 **/
