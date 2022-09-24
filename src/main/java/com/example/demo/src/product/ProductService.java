@@ -71,6 +71,7 @@ public class ProductService {
         }
     }
 
+    /** 조회수 증가 **/
     public void increaseProductView(int productId) throws BaseException {
         try {
             //상품 조회수 1증가
@@ -79,6 +80,16 @@ public class ProductService {
             productDao.increaseProductView(productId, view + 1);
         } catch (BaseException baseException) {
             throw baseException;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /** 상품 판매 상태 변경**/
+    public FetchProductStatusRes updateProductStatus(int productId, String status) throws BaseException {
+        try {
+            productDao.updateStatus(productId, status);
+            return new FetchProductStatusRes(productId, status);
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
