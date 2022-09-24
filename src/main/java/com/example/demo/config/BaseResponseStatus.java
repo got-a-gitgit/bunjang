@@ -52,6 +52,9 @@ public enum BaseResponseStatus {
     FAIL_GET_SALES(false, 416, "거래내역(판매) 조회에 실패했습니다."),
     FAIL_GET_PURCHASE(false, 417, "거래내역(구매) 조회에 실패했습니다."),
     FAIL_NOTIFY_STORE(false, 418, "알림을 설정하지 못했습니다."),
+    INVALID_REVIEWER(false, 419, "거래 후기 작성 권한이 없습니다."),
+    REGISTERED_REVIEW(false, 420, "이미 작성한 후기입니다."),
+    FAIL_REGISTER_REVIEW(false, 421, "거래후기 등록에 실패했습니다."),
 
 
 
