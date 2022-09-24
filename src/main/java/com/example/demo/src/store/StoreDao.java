@@ -143,6 +143,15 @@ public class StoreDao {
                 userId);
     }
 
+    /** 팔로잉 관계 확인 **/
+    public int selectIsFollwing(int userId, int followId){
+        String query = "SELECT EXISTS (SELECT followee FROM follow " +
+                        "WHERE followee = ? AND follower = ? AND status = 'Y')";
+
+        return this.jdbcTemplate.queryForObject(query, int.class, userId, followId);
+    }
+
+
     /** 팔로워 목록 조회 **/
     public List<GetFollowRes> selectFollowers(int storeId, int lastId){
         String query = "SELECT s.user_id, profile_image_url, store_name, alarm_flag, IFNULL(followers, 0) AS followers, IFNULL(products, 0) AS products " +
@@ -246,6 +255,20 @@ public class StoreDao {
             storeProfile.getStoreName(), storeProfile.getDescription(), userId};
 
         return this.jdbcTemplate.update(query, storeProfileParams);
+    }
+
+    /** 팔로잉 알람 설정 수정**/
+    public String updateFollowingNotification(int userId, int followId){
+        String query = "UPDATE follow SET alarm_flag = CASE " +
+                        "WHEN alarm_flag = 'Y' " +
+                        "THEN 'N' ELSE 'Y' END " +
+                        "WHERE followee = ? AND follower = ? AND status = 'Y'";
+
+        this.jdbcTemplate.update(query, userId, followId);  // 알람 설정 변경
+
+        String resultQuery = "SELECT alarm_flag FROM follow WHERE followee = ? and follower = ?";
+
+        return this.jdbcTemplate.queryForObject(resultQuery, String.class, userId, followId); // 결과 반환
     }
 
     // 페이징 처리

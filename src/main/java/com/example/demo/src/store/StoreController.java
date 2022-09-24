@@ -142,6 +142,27 @@ public class StoreController {
     }
 
     /**
+     * 상점 팔로잉 알림 설정 API
+     * [POST] /stores/{store-id}/notified
+     * @return BaseResponse<String>
+     */
+    @ResponseBody
+    @PatchMapping("/{store-id}/notified")
+    public BaseResponse<String> modifyFollowingNotification(@PathVariable("store-id") int followId) throws BaseException {
+        // jwt에서 id 추출
+        int userId = jwtService.getUserId();
+
+        // 자기 자신에 대해서 알림 불가
+        if (userId == followId){
+            return new BaseResponse<>(INVALID_ACCESS);
+        }
+
+        String result = storeService.modifyFollowingNotification(userId, followId);
+
+        return new BaseResponse<>(result);
+    }
+
+    /**
      * 상점 팔로워 목록 조회 API
      * [POST] /stores/{store-id}/followers
      * @return BaseResponse<List<GetFollowRes>>

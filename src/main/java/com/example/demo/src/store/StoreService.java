@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import static com.example.demo.config.BaseResponseStatus.*;
 
+
 @Service
 public class StoreService {
     final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -99,11 +100,30 @@ public class StoreService {
 
         // 팔로우 관계 처리
         try {
-            String result = storeDao.insertFollowing(userId, followId);
-            return result;
+            return storeDao.insertFollowing(userId, followId);
         } catch (Exception e){
             logger.error("Following Error", e);
             throw new BaseException(FAIL_FOLLOW_STORE);
+        }
+    }
+
+    /** 상점 팔로잉 알림 설정 **/
+    public String modifyFollowingNotification(int userId, int followId) throws BaseException {
+        // 유효한 (팔로우)유저인지 확인
+        int isUser = storeProvider.checkUserId(followId);
+        int isRelationship = storeProvider.checkFollowing(userId, followId);
+        if (isUser == 0  || isRelationship == 0) {
+            throw new BaseException(INVALID_ACCESS);
+        }
+
+        // 팔로잉 알림 처리
+        try {
+            String result = storeDao.updateFollowingNotification(userId, followId);
+
+            return result;
+        } catch (Exception e){
+            logger.error("FollowingNotify Error", e);
+            throw new BaseException(FAIL_NOTIFY_STORE);
         }
     }
 
