@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.example.demo.config.BaseResponseStatus.*;
+import static com.example.demo.config.BaseResponseStatus.DATABASE_ERROR;
+import static com.example.demo.config.BaseResponseStatus.INVALID_ACCESS;
+import static com.example.demo.config.BaseResponseStatus.FAIL_GET_REVIEWS;
 
 @Service
 public class ReviewProvider {
@@ -29,9 +31,19 @@ public class ReviewProvider {
     /** 거래 후기를 작성했는지 확인 **/
     public int checkEnableReview(int userId, int tradeId) throws BaseException {
         try {
-            return reviewDao.checkReviewer(userId, tradeId);
+            return reviewDao.selectReviewer(userId, tradeId);
         } catch (Exception e){
             logger.error("checkEnableReview Error", e);
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /** 거래 후기를 삭제 가능한지 확인 **/
+    public int checkDeleteReview(int userId, int reviewId) throws BaseException {
+        try {
+            return reviewDao.selectDeleteReview(userId, reviewId);
+        } catch (Exception e){
+            logger.error("checkDeleteReview Error", e);
             throw new BaseException(DATABASE_ERROR);
         }
     }
