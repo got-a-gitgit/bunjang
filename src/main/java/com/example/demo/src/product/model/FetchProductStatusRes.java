@@ -5,13 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetCategoryListRes {
-    int parentId;
-    List<Category> categoryList;
+public class FetchProductStatusRes {
+    private int productId;
+    private String status;
 }

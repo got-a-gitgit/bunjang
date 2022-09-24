@@ -10,7 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Category {
-    int category_id;
+    int categoryId;
     String name;
     String end;
 }
