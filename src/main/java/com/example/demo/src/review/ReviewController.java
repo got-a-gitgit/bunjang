@@ -4,6 +4,7 @@ import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
 import com.example.demo.src.review.model.GetReviewsRes;
 import com.example.demo.src.review.model.PostReviewReq;
+import com.example.demo.src.review.model.PutReviewReq;
 import com.example.demo.utils.JwtService;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -13,8 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import static com.example.demo.config.BaseResponseStatus.INSERT_SUCCESS;
-import static com.example.demo.config.BaseResponseStatus.INVALID_REVIEWER;
+import static com.example.demo.config.BaseResponseStatus.*;
 
 @RestController
 @AllArgsConstructor
@@ -37,23 +37,56 @@ public class ReviewController {
      */
     @ResponseBody
     @PostMapping("")
-    public BaseResponse<String> registerReview(@RequestBody @Valid PostReviewReq postReviewReq) throws BaseException {
+    public BaseResponse<String> registerReview(@RequestBody @Valid PostReviewReq reviewInfo) throws BaseException {
         // jwt 인증
         int userId= jwtService.getUserId();
 
         // 거래 후기 작성 권한 확인
         int targetId;
-        if (userId == postReviewReq.getSellerId()) {
-            targetId = postReviewReq.getBuyerId();
-        } else if (userId == postReviewReq.getBuyerId()){
-            targetId = postReviewReq.getSellerId();
+        if (userId == reviewInfo.getSellerId()) {
+            targetId = reviewInfo.getBuyerId();
+        } else if (userId == reviewInfo.getBuyerId()){
+            targetId = reviewInfo.getSellerId();
         } else {
             throw new BaseException(INVALID_REVIEWER);
         }
 
-        reviewService.registerReview(userId, targetId, postReviewReq);
+        reviewService.registerReview(userId, targetId, reviewInfo);
 
         return new BaseResponse<>(INSERT_SUCCESS);
+    }
+
+    /**
+     * 거래후기 삭제 API
+     * [GET] /reviews/{review-id}
+     * @return BaseResponse<String>
+     */
+    @ResponseBody
+    @DeleteMapping("/{review-id}")
+    public BaseResponse<String> removeReview(@PathVariable("review-id")int reviewId) throws BaseException {
+        // jwt 인증
+        int userId= jwtService.getUserId();
+
+        reviewService.removeReview(userId, reviewId);
+
+        return new BaseResponse<>(DELETE_SUCCESS);
+    }
+
+    /**
+     * 거래후기 수정 API
+     * [GET] /reviews/{review-id}
+     * @return BaseResponse<String>
+     */
+    @ResponseBody
+    @PutMapping("/{review-id}")
+    public BaseResponse<String> modifyReview(@PathVariable("review-id")int reviewId,
+                                             @RequestBody @Valid PutReviewReq reviewInfo) throws BaseException {
+        // jwt 인증
+        int userId= jwtService.getUserId();
+
+        reviewService.modifyReview(userId, reviewId, reviewInfo);
+
+        return new BaseResponse<>(UPDATE_SUCCESS);
     }
 
     /**

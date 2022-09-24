@@ -55,6 +55,9 @@ public enum BaseResponseStatus {
     INVALID_REVIEWER(false, 419, "거래 후기 작성 권한이 없습니다."),
     REGISTERED_REVIEW(false, 420, "이미 작성한 후기입니다."),
     FAIL_REGISTER_REVIEW(false, 421, "거래후기 등록에 실패했습니다."),
+    FAIL_REMOVE_REVIEW(false, 422, "거래후기 삭제에 실패했습니다."),
+    EMPTY_HEADER_TRADE_ID(false, 400, "거래 식별번호(Id)를 입력하세요."),
+    FAIL_MODIFY_REVIEW(false, 423, "거래후기 수정에 실패했습니다."),
 
 
 
