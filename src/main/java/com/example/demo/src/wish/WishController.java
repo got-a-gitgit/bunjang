@@ -1,6 +1,7 @@
 package com.example.demo.src.wish;
 
 
+import com.example.demo.src.wish.model.GetWishesRes;
 import com.example.demo.utils.S3Service;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -32,6 +33,24 @@ public class WishController {
     private final S3Service s3Service;
 
 
+    /**
+     * 관심 상품 목록 조회 API
+     * [POST] /wishes?id={id}&date={date}&size={size}
+     * @return BaseResponse<GetWishesRes>
+     */
+    @ResponseBody
+    @GetMapping("")
+    public BaseResponse<GetWishesRes> getWishes(@RequestParam(value = "id", defaultValue = "0") int productId,
+                                                @RequestParam(value="date") String date,
+                                                @RequestParam(value = "size", defaultValue = "100") int size) throws BaseException {
+
+        //jwt 인증 및 userId 추출
+        int userId= jwtService.getUserId();
+
+        GetWishesRes result = wishProvider.getWishes(userId, productId, date, size);
+
+        return new BaseResponse<>(result);
+    }
 
     /**
      * 관심 상품 등록 API

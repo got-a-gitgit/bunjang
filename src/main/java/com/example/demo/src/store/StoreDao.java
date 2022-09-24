@@ -1,9 +1,6 @@
 package com.example.demo.src.store;
 
-import com.example.demo.src.store.model.GetFollowRes;
-import com.example.demo.src.store.model.PatchStoreProfileReq;
-import com.example.demo.src.store.model.PatchStoreProfileRes;
-import com.example.demo.src.store.model.Product;
+import com.example.demo.src.store.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -72,6 +69,84 @@ public class StoreDao {
                 userId);
     }
 
+    /** 상점 정보 전체 조회 **/
+    public GetStoreInfoRes selectStoreInfo(int userId) {
+        String query = "SELECT store_name, profile_image_url, description, s.created_at, authentication_flag, " +
+                        "ROUND(AVG(rating), 1) AS rating, trade, follower, followee " +
+                        "FROM store s " +
+                        "INNER JOIN review r ON s.user_id = r.target_user_id " +
+                        "INNER JOIN (SELECT COUNT(*) AS trade " +
+                        "FROM trade " +
+                        "WHERE seller_id = ? AND status = 'F') trade_tb " +
+                        "INNER JOIN (SELECT COUNT(*) AS follower " +
+                        "FROM follow " +
+                        "WHERE follower = ?) follower_tb " +
+                        "INNER JOIN (SELECT COUNT(*) AS followee " +
+                        "FROM follow " +
+                        "WHERE followee = ?) followee_tb " +
+                        "WHERE user_id = ?";
+
+        Object[] queryParams = new Object[]{userId, userId, userId, userId};
+
+        return this.jdbcTemplate.queryForObject(query,
+                (rs, rowNum) -> new GetStoreInfoRes(
+                        rs.getString("store_name"),
+                        rs.getString("profile_image_url"),
+                        rs.getString("description"),
+                        rs.getFloat("rating"),
+                        rs.getInt("trade"),
+                        rs.getInt("follower"),
+                        rs.getInt("followee"),
+                        rs.getString("s.created_at"),
+                        rs.getString("authentication_flag")),
+                queryParams);
+    }
+
+    /** 상점 거래내역(판매) 조회 **/
+    public List<TradeInfo> selectSales(int userId, String type){
+        String query = "SELECT trade_id, url, name, price, store_name, t.created_at, t.status " +
+                "FROM trade t " +
+                "INNER JOIN product p ON t.product_id = p.product_id " +
+                "INNER JOIN product_image pi ON p.product_id = pi.product_id " +
+                "INNER JOIN store s ON t.seller_id = s.user_id " +
+                "WHERE (seller_id = ? AND t.status = " + type + ") " +
+                "GROUP BY trade_id, t.created_at " +
+                "ORDER BY t.created_at DESC";
+
+        return this.jdbcTemplate.query(query,
+                (rs, rowNum) -> new TradeInfo(
+                        rs.getInt("trade_id"),
+                        rs.getString("url"),
+                        rs.getString("name"),
+                        rs.getInt("price"),
+                        rs.getString("store_name"),
+                        rs.getString("t.created_at"),
+                        rs.getString("t.status")),
+                userId);
+    }
+
+    /** 상점 거래내역(구매) 조회 **/
+    public List<TradeInfo> selectPurchases(int userId, String type){
+        String query = "SELECT trade_id, url, name, price, store_name, t.created_at, t.status " +
+                "FROM trade t " +
+                "INNER JOIN product p ON t.product_id = p.product_id " +
+                "INNER JOIN product_image pi ON p.product_id = pi.product_id " +
+                "INNER JOIN store s ON t.seller_id = s.user_id " +
+                "WHERE (buyer_id = ? AND t.status = " + type + ") " +
+                "GROUP BY trade_id, t.created_at " +
+                "ORDER BY t.created_at DESC";
+
+        return this.jdbcTemplate.query(query,
+                (rs, rowNum) -> new TradeInfo(
+                        rs.getInt("trade_id"),
+                        rs.getString("url"),
+                        rs.getString("name"),
+                        rs.getInt("price"),
+                        rs.getString("store_name"),
+                        rs.getString("t.created_at"),
+                        rs.getString("t.status")),
+                userId);
+    }
 
     /** 팔로워 목록 조회 **/
     public List<GetFollowRes> selectFollowers(int storeId, int lastId){
@@ -122,14 +197,42 @@ public class StoreDao {
                 storeId, lastId);
     }
 
-    /** 상점별 판매목록 3개 가져오기 **/
-    public List<Product> selectProductsByStore(int userId){
+    /** 상점 거래내역(판매) 조회 **/
+    public List<TradeInfo> selectSales(int userId, int tradeId, String date, int size){
+        String query = "SELECT trade_id, url, name, price, store_name, t.created_at, t.status " +
+                "FROM trade t " +
+                "INNER JOIN product p ON t.product_id = p.product_id " +
+                "INNER JOIN product_image pi ON p.product_id = pi.product_id " +
+                "INNER JOIN store s ON t.seller_id = s.user_id " +
+                "WHERE seller_id = ? " +
+                "AND ((t.created_at = ? AND trade_id > ?) " +
+                "OR t.created_at < ?) " +
+                "GROUP BY trade_id, t.created_at " +
+                "ORDER BY t.created_at DESC , trade_id " +
+                "LIMIT ?";
+
+        Object[] queryParams = new Object[]{userId, date, tradeId, date, size + 1};
+
+        return this.jdbcTemplate.query(query,
+                (rs, rowNum) -> new TradeInfo(
+                        rs.getInt("trade_id"),
+                        rs.getString("url"),
+                        rs.getString("name"),
+                        rs.getInt("price"),
+                        rs.getString("store_name"),
+                        rs.getString("t.created_at"),
+                        rs.getString("t.status")),
+                queryParams);
+    }
+
+    /** 상점별 판매목록 3개까지 조회 **/
+    public List<ProductInfo> selectProductsByStore(int userId){
         String query = "SELECT user_id, p.product_id, pi.url, price " +
                         "FROM product p " +
                         "INNER JOIN product_image pi ON p.product_id = pi.product_id " +
                         "WHERE user_id = ? AND p.status= 'S' LIMIT 3";
         return this.jdbcTemplate.query(query,
-                (rs, rowNum) -> new Product(
+                (rs, rowNum) -> new ProductInfo(
                         rs.getInt("p.product_id"),
                         rs.getString("pi.url"),
                         rs.getInt("price")
@@ -150,4 +253,32 @@ public class StoreDao {
         return this.jdbcTemplate.update(query, storeProfileParams);
     }
 
+    // 페이징 처리
+//    /** 상점 거래내역(판매) 조회 **/
+//    public List<TradeInfo> selectSales(int userId, int tradeId, String date, int size){
+//        String query = "SELECT trade_id, url, name, price, store_name, t.created_at, t.status " +
+//                "FROM trade t " +
+//                "INNER JOIN product p ON t.product_id = p.product_id " +
+//                "INNER JOIN product_image pi ON p.product_id = pi.product_id " +
+//                "INNER JOIN store s ON t.seller_id = s.user_id " +
+//                "WHERE seller_id = ? " +
+//                "AND ((t.created_at = ? AND trade_id > ?) " +
+//                "OR t.created_at < ?) " +
+//                "GROUP BY trade_id, t.created_at " +
+//                "ORDER BY t.created_at DESC , trade_id " +
+//                "LIMIT ?";
+//
+//        Object[] queryParams = new Object[]{userId, date, tradeId, date, size + 1};
+//
+//        return this.jdbcTemplate.query(query,
+//                (rs, rowNum) -> new TradeInfo(
+//                        rs.getInt("trade_id"),
+//                        rs.getString("url"),
+//                        rs.getString("name"),
+//                        rs.getInt("price"),
+//                        rs.getString("store_name"),
+//                        rs.getString("t.created_at"),
+//                        rs.getString("t.status")),
+//                queryParams);
+//    }
 }

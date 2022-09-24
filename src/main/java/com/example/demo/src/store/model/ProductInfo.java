@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class Product {
+public class ProductInfo {
     private int productId;
     private String productImage;
     private int price;
