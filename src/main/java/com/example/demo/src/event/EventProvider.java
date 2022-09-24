@@ -2,8 +2,6 @@ package com.example.demo.src.event;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.src.event.model.GetEventListRes;
-import com.example.demo.src.product.ProductDao;
-import com.example.demo.src.product.model.GetProductRes;
 import com.example.demo.utils.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +21,8 @@ public class EventProvider {
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public EventProvider(EventDao eventDaoDao, JwtService jwtService) {
-        this.eventDao = eventDaoDao;
+    public EventProvider(EventDao eventDao, JwtService jwtService) {
+        this.eventDao = eventDao;
         this.jwtService = jwtService;
     }
 
