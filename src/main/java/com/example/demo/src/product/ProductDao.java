@@ -462,4 +462,23 @@ public class ProductDao {
         this.jdbcTemplate.update(query, params);
 
     }
+
+    public List<GetWisherListRes> getWisherList(int productId) {
+        String query = "SELECT w.user_id as user_id," +
+                " s.profile_image_url as profile_image_url," +
+                " store_name," +
+                " w.updated_at as updated_at\n" +
+                "FROM wish w\n" +
+                "JOIN store s ON w.user_id = s.user_id\n" +
+                "WHERE product_id = ? AND w.status='Y'";
+
+        return this.jdbcTemplate.query(query,
+                (rs,rowNum)->new GetWisherListRes(
+                        rs.getInt("user_id"),
+                        rs.getString("profile_image_url"),
+                        rs.getString("store_name"),
+                        rs.getString("updated_at")
+                )
+                ,productId);
+    }
 }

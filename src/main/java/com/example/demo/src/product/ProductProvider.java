@@ -128,6 +128,7 @@ public class ProductProvider {
         }
     }
 
+    /** 하위 카테고리 목록 조회**/
     public GetCategoryListRes getCategoryList(int categoryId) throws BaseException {
         try {
             //하위 카테고리 목록 조회
@@ -139,6 +140,15 @@ public class ProductProvider {
             return new GetCategoryListRes(categoryId, subcategoryList);
         } catch (BaseException baseException) {
             throw baseException;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /** 상품 찜한 사람 목록 조회**/
+    public List<GetWisherListRes> getWisherList(int productId) throws BaseException {
+        try {
+            return productDao.getWisherList(productId);
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
