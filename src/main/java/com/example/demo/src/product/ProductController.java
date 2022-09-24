@@ -197,4 +197,23 @@ public class ProductController {
     }
 
 
+    /**
+     * 상품을 찜한 사람 목록 조회 API
+     * [Get] /products/:product-id/wishes
+     * @return BaseResponse
+     */
+    @ResponseBody
+    @GetMapping("/{product-id}/wishes")
+    public BaseResponse<List<GetWisherListRes>> getWisherList(@PathVariable("product-id")int productId) throws BaseException {
+        //jwt 인증
+        int userId= jwtService.getUserId();
+
+        try{
+            List<GetWisherListRes> getWisherListRes = productProvider.getWisherList(productId);
+            return new BaseResponse<>(getWisherListRes);
+        } catch(BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
 }
