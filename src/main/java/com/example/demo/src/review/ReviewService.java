@@ -2,6 +2,7 @@ package com.example.demo.src.review;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.src.review.model.PostReviewReq;
+import com.example.demo.src.review.model.PutReviewReq;
 import com.example.demo.utils.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,16 +27,16 @@ public class ReviewService {
     }
 
     /** 거래 후기 등록 **/
-    public void registerReview(int userId, int targetId, PostReviewReq postReviewReq) throws BaseException {
+    public void registerReview(int userId, int targetId, PostReviewReq reviewInfo) throws BaseException {
         // 거래 후기를 작성했는지 확인
-        int isEnable =  reviewProvider.checkEnableReview(userId, postReviewReq.getTradeId());
+        int isEnable =  reviewProvider.checkEnableReview(userId, reviewInfo.getTradeId());
         if (isEnable == 1){
             throw new BaseException(REGISTERED_REVIEW);
         }
 
         try{
             // 거래 후기 등록
-            int result = reviewDao.insertReview(userId, targetId, postReviewReq);
+            int result = reviewDao.insertReview(userId, targetId, reviewInfo);
             if (result == 0){
                 throw new BaseException(FAIL_REGISTER_REVIEW);
             }
@@ -59,6 +60,23 @@ public class ReviewService {
         } catch (Exception e){
             logger.error("RemoveReview Error", e);
             throw new BaseException(FAIL_REMOVE_REVIEW);
+        }
+    }
+
+    /** 거래 후기 수정 **/
+    public void modifyReview(int userId, int reviewId, PutReviewReq reviewInfo) throws BaseException {
+        // 거래 후기를 작성했는지 확인
+        int isEnable =  reviewProvider.checkDeleteReview(userId, reviewId);
+        if (isEnable == 0){
+            throw new BaseException(INVALID_ACCESS);
+        }
+
+        try{
+            // 거래 후기 수정
+            reviewDao.updateReview(userId, reviewId, reviewInfo);
+        } catch (Exception e){
+            logger.error("ModifyReview Error", e);
+            throw new BaseException(FAIL_MODIFY_REVIEW);
         }
     }
 

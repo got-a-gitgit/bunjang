@@ -1,6 +1,7 @@
 package com.example.demo.src.review;
 
 import com.example.demo.src.review.model.PostReviewReq;
+import com.example.demo.src.review.model.PutReviewReq;
 import com.example.demo.src.review.model.ReviewInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,12 +21,12 @@ public class ReviewDao {
 
     // Insert SQL
     /** 거래 후기 작성**/
-    public int insertReview(int userId, int targetId, PostReviewReq postReviewReq){
+    public int insertReview(int userId, int targetId, PostReviewReq reviewInfo){
         String query = "INSERT INTO review(reviewer_id, target_user_id, trade_id, rating, content) " +
                         "VALUES(?, ?, ?, ?, ?) ";
 
-        Object[] queryParams = new Object[]{userId, targetId,postReviewReq.getTradeId(),
-                                            postReviewReq.getRating(), postReviewReq.getContents()};
+        Object[] queryParams = new Object[]{userId, targetId,reviewInfo.getTradeId(),
+                                            reviewInfo.getRating(), reviewInfo.getContents()};
 
         return this.jdbcTemplate.update(query, queryParams);
     }
@@ -89,6 +90,17 @@ public class ReviewDao {
                         "WHERE reviewer_id = ? AND review_id = ?";
 
         return this.jdbcTemplate.update(query, userId, reviewId);
+    }
+
+    /**거래 후기 수정 **/
+    public int updateReview(int userId, int reviewId, PutReviewReq reviewInfo) {
+        String query = "UPDATE review SET rating = ?, content = ? " +
+                "WHERE reviewer_id = ? AND review_id = ?";
+
+        Object[] queryParams = new Object[]{reviewInfo.getRating(), reviewInfo.getContents(),
+                                            userId, reviewId};
+
+        return this.jdbcTemplate.update(query, queryParams);
     }
 
 
