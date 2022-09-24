@@ -10,11 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import static com.example.demo.config.BaseResponseStatus.INSERT_SUCCESS;
-import static com.example.demo.config.BaseResponseStatus.INVALID_REVIEWER;
+import static com.example.demo.config.BaseResponseStatus.*;
 
 @RestController
 @AllArgsConstructor
@@ -54,6 +56,22 @@ public class ReviewController {
         reviewService.registerReview(userId, targetId, postReviewReq);
 
         return new BaseResponse<>(INSERT_SUCCESS);
+    }
+
+    /**
+     * 거래후기 삭제 API
+     * [GET] /reviews/{review-id}
+     * @return BaseResponse<String>
+     */
+    @ResponseBody
+    @DeleteMapping("/{review-id}")
+    public BaseResponse<String> removeReview(@PathVariable("review-id")int reviewId) throws BaseException {
+        // jwt 인증
+        int userId= jwtService.getUserId();
+
+        reviewService.removeReview(userId, reviewId);
+
+        return new BaseResponse<>(DELETE_SUCCESS);
     }
 
     /**

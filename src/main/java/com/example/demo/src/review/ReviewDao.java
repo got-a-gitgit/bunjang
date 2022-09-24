@@ -32,11 +32,19 @@ public class ReviewDao {
 
     //Select SQL
     /** 거래 후기 작성 가능한지 확인 **/
-    public int checkReviewer(int userId, int tradeId){
+    public int selectReviewer(int userId, int tradeId){
         String query = "SELECT EXISTS (SELECT * FROM review " +
-                "WHERE reviewer_id = ? AND trade_id = ? )";
+                "WHERE reviewer_id = ? AND trade_id = ?)";
 
         return this.jdbcTemplate.queryForObject(query, int.class, userId, tradeId);
+    }
+
+    /** 거래 후기 삭제가 가능한지 확인 **/
+    public int selectDeleteReview(int userId, int reviewID){
+        String query = "SELECT EXISTS (SELECT * FROM review " +
+                "WHERE reviewer_id = ? AND review_id = ? AND status = 'Y')";
+
+        return this.jdbcTemplate.queryForObject(query, int.class, userId, reviewID);
     }
 
     /** 거래 후기 조회 **/
@@ -69,12 +77,19 @@ public class ReviewDao {
     /** 거래 후기 집계 **/
     public int selectReviewCount(int storeId){
         String query = "SELECT COUNT(*) AS reviewCount FROM review " +
-                        "WHERE target_user_id = ?";
+                        "WHERE target_user_id = ? AND status = 'Y'";
 
         return this.jdbcTemplate.queryForObject(query, int.class, storeId);
     }
 
+    // Update SQL
+    /**거래 후기 삭제 **/
+    public int deleteReview(int userId, int reviewId) {
+        String query = "UPDATE review SET status = 'N' " +
+                        "WHERE reviewer_id = ? AND review_id = ?";
 
+        return this.jdbcTemplate.update(query, userId, reviewId);
+    }
 
 
 }

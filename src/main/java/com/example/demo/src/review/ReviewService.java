@@ -1,18 +1,12 @@
 package com.example.demo.src.review;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.config.BaseResponseStatus;
-import com.example.demo.src.review.model.GetReviewsRes;
 import com.example.demo.src.review.model.PostReviewReq;
-import com.example.demo.src.review.model.ReviewInfo;
 import com.example.demo.utils.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.List;
 
 import static com.example.demo.config.BaseResponseStatus.*;
 
@@ -50,4 +44,23 @@ public class ReviewService {
             throw new BaseException(FAIL_REGISTER_REVIEW);
         }
     }
+
+    /** 거래 후기 삭제 **/
+    public void removeReview(int userId, int reviewId) throws BaseException {
+        // 거래 후기를 작성했는지 확인
+        int isEnable =  reviewProvider.checkDeleteReview(userId, reviewId);
+        if (isEnable == 0){
+            throw new BaseException(INVALID_ACCESS);
+        }
+
+        try{
+            // 거래 후기 삭제
+            reviewDao.deleteReview(userId, reviewId);
+        } catch (Exception e){
+            logger.error("RemoveReview Error", e);
+            throw new BaseException(FAIL_REMOVE_REVIEW);
+        }
+    }
+
+
 }
