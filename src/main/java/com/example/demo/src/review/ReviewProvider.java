@@ -26,7 +26,17 @@ public class ReviewProvider {
         this.storeProvider = storeProvider;
     }
 
-    /** 리뷰 목록 조회 **/
+    /** 거래 후기를 작성했는지 확인 **/
+    public int checkEnableReview(int userId, int tradeId) throws BaseException {
+        try {
+            return reviewDao.checkReviewer(userId, tradeId);
+        } catch (Exception e){
+            logger.error("checkEnableReview Error", e);
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /** 거래 후기 조회 **/
     public GetReviewsRes getReviews(int storeId, int reviewId, String date, int size) throws BaseException {
         // 유효한 유저인지 확인
         int isUser = storeProvider.checkUserId(storeId);

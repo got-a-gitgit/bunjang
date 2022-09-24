@@ -9,8 +9,12 @@ import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+
+import static com.example.demo.config.BaseResponseStatus.INSERT_SUCCESS;
+import static com.example.demo.config.BaseResponseStatus.INVALID_REVIEWER;
 
 @RestController
 @AllArgsConstructor
@@ -27,26 +31,39 @@ public class ReviewController {
 
 
     /**
-     * 리뷰 등록 API
-     * [POST] /reviews/{store-id}
-     * @return BaseResponse<PostProductRes>
+     * 거래후기 등록 API
+     * [POST] /reviews
+     * @return BaseResponse<String>
      */
     @ResponseBody
-    @PostMapping("/{store-id}")
-    public void registerReview(PostReviewReq postReviewReq) throws BaseException, BindException {
-
-        //jwt 인증
+    @PostMapping("")
+    public BaseResponse<String> registerReview(@RequestBody @Valid PostReviewReq postReviewReq) throws BaseException {
+        // jwt 인증
         int userId= jwtService.getUserId();
+
+        // 거래 후기 작성 권한 확인
+        int targetId;
+        if (userId == postReviewReq.getSellerId()) {
+            targetId = postReviewReq.getBuyerId();
+        } else if (userId == postReviewReq.getBuyerId()){
+            targetId = postReviewReq.getSellerId();
+        } else {
+            throw new BaseException(INVALID_REVIEWER);
+        }
+
+        reviewService.registerReview(userId, targetId, postReviewReq);
+
+        return new BaseResponse<>(INSERT_SUCCESS);
     }
 
     /**
-     * 리뷰 목록 조회 API
+     * 거래후기 목록 조회 API
      * [GET] /reviews/{store-id}?id={id}&date={date}&size={size}
      * @return BaseResponse<GetReviewsRes>
      */
     @ResponseBody
     @GetMapping("/{store-id}")
-    public BaseResponse<GetReviewsRes> registerReview(@PathVariable(value = "store-id") int storeId,
+    public BaseResponse<GetReviewsRes> registerReview(@PathVariable("store-id") int storeId,
                                                       @RequestParam(value = "id", defaultValue = "0") int reviewId,
                                                       @RequestParam(value="date") String date,
                                                       @RequestParam(value = "size", defaultValue = "100") int size) throws BaseException {

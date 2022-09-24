@@ -101,6 +101,16 @@ public class StoreProvider {
         }
     }
 
+    /** 팔로잉 관계 확인 **/
+    public int checkFollowing(int userId, int storeId) throws BaseException {
+        try {
+            return storeDao.selectIsFollwing(userId, storeId);
+        } catch (Exception e){
+            logger.error("checkFollowing", e);
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
     /** 상점의 팔로워 목록 조회 **/
     public List<GetFollowRes> getFollowers(int storeId, int lastId) throws BaseException {
         // 유효한 유저인지 확인

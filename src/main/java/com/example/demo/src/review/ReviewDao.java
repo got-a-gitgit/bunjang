@@ -19,17 +19,27 @@ public class ReviewDao {
     }
 
     // Insert SQL
+    /** 거래 후기 작성**/
+    public int insertReview(int userId, int targetId, PostReviewReq postReviewReq){
+        String query = "INSERT INTO review(reviewer_id, target_user_id, trade_id, rating, content) " +
+                        "VALUES(?, ?, ?, ?, ?) ";
 
-    public void insertReview(int userId, int storeId, PostReviewReq postReviewReq){
-        String query = "INSERT INTO review(reviewer_id, target_user_id, rating, content) " +
-                        "VALUES(?, ?, ?, ?) ";
+        Object[] queryParams = new Object[]{userId, targetId,postReviewReq.getTradeId(),
+                                            postReviewReq.getRating(), postReviewReq.getContents()};
 
-        Object[] queryParams = new Object[]{userId, storeId,postReviewReq.getRating(), postReviewReq.getContents()};
-
-        this.jdbcTemplate.update(query, queryParams);
+        return this.jdbcTemplate.update(query, queryParams);
     }
 
     //Select SQL
+    /** 거래 후기 작성 가능한지 확인 **/
+    public int checkReviewer(int userId, int tradeId){
+        String query = "SELECT EXISTS (SELECT * FROM review " +
+                "WHERE reviewer_id = ? AND trade_id = ? )";
+
+        return this.jdbcTemplate.queryForObject(query, int.class, userId, tradeId);
+    }
+
+    /** 거래 후기 조회 **/
     public List<ReviewInfo> selectReviews(int storeId, int reviewId, String date, int size){
         String query = "SELECT r.review_id, rating, content, store_name, r.created_at, t.product_id, name " +
                         "FROM review r " +
@@ -56,12 +66,15 @@ public class ReviewDao {
                 reviewsParams);
     }
 
+    /** 거래 후기 집계 **/
     public int selectReviewCount(int storeId){
         String query = "SELECT COUNT(*) AS reviewCount FROM review " +
                         "WHERE target_user_id = ?";
 
         return this.jdbcTemplate.queryForObject(query, int.class, storeId);
     }
+
+
 
 
 }

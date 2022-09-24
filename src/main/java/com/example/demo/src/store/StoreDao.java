@@ -74,19 +74,14 @@ public class StoreDao {
         String query = "SELECT store_name, profile_image_url, description, s.created_at, authentication_flag, " +
                         "ROUND(AVG(rating), 1) AS rating, trade, follower, followee " +
                         "FROM store s " +
-                        "INNER JOIN review r ON s.user_id = r.target_user_id " +
-                        "INNER JOIN (SELECT COUNT(*) AS trade " +
-                        "FROM trade " +
-                        "WHERE seller_id = ? AND status = 'F') trade_tb " +
-                        "INNER JOIN (SELECT COUNT(*) AS follower " +
-                        "FROM follow " +
-                        "WHERE follower = ?) follower_tb " +
-                        "INNER JOIN (SELECT COUNT(*) AS followee " +
-                        "FROM follow " +
-                        "WHERE followee = ?) followee_tb " +
+                        "LEFT JOIN review r ON s.user_id = r.target_user_id " +
+                        "LEFT JOIN (SELECT seller_id, COUNT(seller_id) AS trade " +
+                        "FROM trade WHERE status = 'F' GROUP BY seller_id) trade_tb ON s.user_id = trade_tb.seller_id " +
+                        "LEFT JOIN (SELECT follower AS f, COUNT(follower) AS follower " +
+                        "FROM follow GROUP BY follower) follower_tb ON s.user_id = follower_tb.f " +
+                        "LEFT JOIN (SELECT followee AS f,COUNT(followee) AS followee " +
+                        "FROM follow GROUP BY followee) followee_tb ON s.user_id = followee_tb.f " +
                         "WHERE user_id = ?";
-
-        Object[] queryParams = new Object[]{userId, userId, userId, userId};
 
         return this.jdbcTemplate.queryForObject(query,
                 (rs, rowNum) -> new GetStoreInfoRes(
@@ -99,7 +94,7 @@ public class StoreDao {
                         rs.getInt("followee"),
                         rs.getString("s.created_at"),
                         rs.getString("authentication_flag")),
-                queryParams);
+                userId);
     }
 
     /** 상점 거래내역(판매) 조회 **/
@@ -147,6 +142,15 @@ public class StoreDao {
                         rs.getString("t.status")),
                 userId);
     }
+
+    /** 팔로잉 관계 확인 **/
+    public int selectIsFollwing(int userId, int followId){
+        String query = "SELECT EXISTS (SELECT followee FROM follow " +
+                        "WHERE followee = ? AND follower = ? AND status = 'Y')";
+
+        return this.jdbcTemplate.queryForObject(query, int.class, userId, followId);
+    }
+
 
     /** 팔로워 목록 조회 **/
     public List<GetFollowRes> selectFollowers(int storeId, int lastId){
@@ -251,6 +255,20 @@ public class StoreDao {
             storeProfile.getStoreName(), storeProfile.getDescription(), userId};
 
         return this.jdbcTemplate.update(query, storeProfileParams);
+    }
+
+    /** 팔로잉 알람 설정 수정**/
+    public String updateFollowingNotification(int userId, int followId){
+        String query = "UPDATE follow SET alarm_flag = CASE " +
+                        "WHEN alarm_flag = 'Y' " +
+                        "THEN 'N' ELSE 'Y' END " +
+                        "WHERE followee = ? AND follower = ? AND status = 'Y'";
+
+        this.jdbcTemplate.update(query, userId, followId);  // 알람 설정 변경
+
+        String resultQuery = "SELECT alarm_flag FROM follow WHERE followee = ? and follower = ?";
+
+        return this.jdbcTemplate.queryForObject(resultQuery, String.class, userId, followId); // 결과 반환
     }
 
     // 페이징 처리
