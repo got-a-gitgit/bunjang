@@ -1,9 +1,7 @@
 package com.example.demo.src.store;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.store.model.GetFollowRes;
-import com.example.demo.src.store.model.PatchStoreProfileRes;
-import com.example.demo.src.store.model.Product;
+import com.example.demo.src.store.model.*;
 import com.example.demo.utils.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.example.demo.config.BaseResponseStatus.DATABASE_ERROR;
-import static com.example.demo.config.BaseResponseStatus.INVALID_ACCESS;
+import static com.example.demo.config.BaseResponseStatus.*;
 
 @Service
 public class StoreProvider {
@@ -58,10 +55,65 @@ public class StoreProvider {
         }
     }
 
+    /** 상점 정보 조회 **/
+    public GetStoreInfoRes getStoreInfo(int storeId) throws BaseException {
+        // 유효한 유저인지 확인
+        int isUser = checkUserId(storeId);
+        if (isUser == 0) {
+            throw new BaseException(INVALID_ACCESS);
+        }
+
+        try {
+            return storeDao.selectStoreInfo(storeId);
+        } catch (Exception e){
+            logger.error("GetStoreProfile Error", e);
+            throw new BaseException(FAIL_GET_STOREINFO);
+        }
+    }
+
+    /** 상점의 거래내역(판매) 조회 **/
+    public List<TradeInfo> getSales(int userId, String type) throws BaseException {
+        // 전체 조회 시
+        if (type.equals("All")){
+            type = "t.status";
+        }
+
+        try {
+            return storeDao.selectSales(userId, type);
+        } catch (Exception e){
+            logger.error("GetWishes", e);
+            throw new BaseException(FAIL_GET_SALES);
+        }
+    }
+
+    /** 상점의 거래내역(구매) 조회 **/
+    public List<TradeInfo> getPurchases(int userId, String type) throws BaseException {
+        // 전체 조회 시
+        if (type.equals("All")){
+            type = "t.status";
+        }
+
+        try {
+            return storeDao.selectPurchases(userId, type);
+        } catch (Exception e){
+            logger.error("GetWishes", e);
+            throw new BaseException(FAIL_GET_PURCHASE);
+        }
+    }
+
+    /** 팔로잉 관계 확인 **/
+    public int checkFollowing(int userId, int storeId) throws BaseException {
+        try {
+            return storeDao.selectIsFollwing(userId, storeId);
+        } catch (Exception e){
+            logger.error("checkFollowing", e);
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
     /** 상점의 팔로워 목록 조회 **/
     public List<GetFollowRes> getFollowers(int storeId, int lastId) throws BaseException {
-
-        // 유효한 (팔로우)유저인지 확인
+        // 유효한 유저인지 확인
         int isUser = checkUserId(storeId);
         if (isUser == 0) {
             throw new BaseException(INVALID_ACCESS);
@@ -76,8 +128,7 @@ public class StoreProvider {
 
     /** 상점의 팔로잉 목록 조회 **/
     public List<GetFollowRes> getFollowings(int storeId, int lastId) throws BaseException {
-
-        // 유효한 (팔로우)유저인지 확인
+        // 유효한 유저인지 확인
         int isUser = checkUserId(storeId);
         if (isUser == 0) {
             throw new BaseException(INVALID_ACCESS);
@@ -86,8 +137,8 @@ public class StoreProvider {
         try {
             List<GetFollowRes> result = storeDao.selectFollowings(storeId, lastId);
             for (GetFollowRes store : result){
-                List<Product> products = storeDao.selectProductsByStore(store.getUserId());
-                store.setProductList(products);
+                List<ProductInfo> products = storeDao.selectProductsByStore(store.getUserId());
+                store.setProductInfoList(products);
             }
             return result;
         } catch (Exception e) {
@@ -96,8 +147,29 @@ public class StoreProvider {
         }
     }
 
-
-
-
-
+    // 페이징 처리
+//    /** 상점의 거래내역(판매) 조회 **/
+//    public GetSalesRes getSales(int userId, int tradeId, String date, int size) throws BaseException {
+//        try {
+//            List<TradeInfo> tradeInfo = storeDao.selectSales(userId, tradeId, date, size);
+//            int lastTradeId = 0;
+//            String lastTradeDate = "";
+//
+//            // 다음 페이지 여부
+//            boolean hasNextPage = true;
+//            if (tradeInfo.size() != size + 1) {
+//                hasNextPage = false;
+//            }
+//            if (hasNextPage){
+//                tradeInfo.remove(size);  // 마지막 데이터 삭제
+//                lastTradeId = tradeInfo.get(size-1).getTradeId();       // 마지막 데이터 거래 상품 Id
+//                lastTradeDate = tradeInfo.get(size-1).getTradeDate();  // 마지막 데이터 거래 날짜
+//            }
+//
+//            return new GetSalesRes(tradeInfo, hasNextPage, lastTradeId, lastTradeDate);
+//        } catch (Exception e){
+//            logger.error("GetWishes", e);
+//            throw new BaseException(FAIL_GET_SALES);
+//        }
+//    }
 }

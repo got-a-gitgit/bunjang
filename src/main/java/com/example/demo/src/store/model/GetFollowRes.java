@@ -1,5 +1,6 @@
 package com.example.demo.src.store.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
 import java.util.List;
@@ -11,17 +12,19 @@ public class GetFollowRes {
     private int userId;
     private String profileImageUrl;
     private String storeName;
-    private String alarm_flag;
+    private String alarmFlag;
     private int follower;
     private int product;
-    private List<Product> ProductList;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<ProductInfo> productInfoList;
 
-    public GetFollowRes(int userId, String profileImageUrl, String storeName, String alarm_flag, int follower, int product) {
+    public GetFollowRes(int userId, String profileImageUrl, String storeName, String alarmFlag, int follower, int product) {
         this.userId = userId;
         this.profileImageUrl = profileImageUrl;
         this.storeName = storeName;
-        this.alarm_flag = alarm_flag;
+        this.alarmFlag = alarmFlag;
         this.follower = follower;
         this.product = product;
+        this.productInfoList = null;
     }
 }
