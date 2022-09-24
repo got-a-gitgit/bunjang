@@ -176,6 +176,25 @@ public class ProductController {
     }
 
 
+    /**
+     * 상품 상태 변경 API
+     * [PATCH] /products/:product-id/status/:status
+     * @return BaseResponse
+     */
+    @ResponseBody
+    @PatchMapping("/{product-id}/status/{status}")
+    public BaseResponse<FetchProductStatusRes> fetchProductStatus(@PathVariable("product-id")int productId, @PathVariable("status")String status) throws BaseException {
+        //jwt 인증
+        int userId= jwtService.getUserId();
+
+        try{
+            //상품 상태 변경
+            FetchProductStatusRes fetchProductStatusRes = productService.updateProductStatus(productId, status);
+            return new BaseResponse<>(fetchProductStatusRes);
+        } catch(BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 
 
 }

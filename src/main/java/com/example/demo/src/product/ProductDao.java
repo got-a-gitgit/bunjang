@@ -454,4 +454,12 @@ public class ProductDao {
                     categoryId);
 
     }
+
+    public void updateStatus(int productId, String status) {
+        String query = "UPDATE product SET status=? WHERE product_id=?";
+        Object[] params = new Object[]{status, productId};
+
+        this.jdbcTemplate.update(query, params);
+
+    }
 }
