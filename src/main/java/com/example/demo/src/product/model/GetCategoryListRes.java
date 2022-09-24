@@ -12,6 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetCategoryListRes {
-    int parent_id;
+    int parentId;
     List<Category> categoryList;
 }
