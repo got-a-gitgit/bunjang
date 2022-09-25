@@ -63,7 +63,7 @@ public class StoreController {
 
     /**
      * 상점 소개 수정 API
-     * [POST] /stores
+     * [PATCH] /stores
      * @return BaseResponse<PatchStoreProfileReq>
      */
     @ResponseBody
@@ -80,7 +80,7 @@ public class StoreController {
 
     /**
      * 상점 거래내역(판매) 조회 API
-     * [POST] /stores/sales
+     * [GET] /stores/sales
      * @return BaseResponse<List<TradeInfo>>
      */
     @ResponseBody
@@ -101,7 +101,7 @@ public class StoreController {
 
     /**
      * 상점 거래내역(구매) 조회 API
-     * [POST] /stores/purchases?type={type}
+     * [GET] /stores/purchases?type={type}
      * @return BaseResponse<List<TradeInfo>>
      */
     @ResponseBody
@@ -143,7 +143,7 @@ public class StoreController {
 
     /**
      * 상점 팔로잉 알림 설정 API
-     * [POST] /stores/{store-id}/notified
+     * [PATCH] /stores/{store-id}/notified
      * @return BaseResponse<String>
      */
     @ResponseBody
@@ -164,7 +164,7 @@ public class StoreController {
 
     /**
      * 상점 팔로워 목록 조회 API
-     * [POST] /stores/{store-id}/followers
+     * [GET] /stores/{store-id}/followers
      * @return BaseResponse<List<GetFollowRes>>
      */
     @ResponseBody
@@ -177,8 +177,8 @@ public class StoreController {
     }
 
     /**
-     * 상점 팔로우 API
-     * [POST] /stores/{store-id}/followings
+     * 상점 팔로잉 목록 조회 API
+     * [GET] /stores/{store-id}/followings
      * @return BaseResponse<List<GetFollowRes>>
      */
     @ResponseBody
@@ -191,6 +191,73 @@ public class StoreController {
 
     }
 
+    /**
+     * 계좌 목록 조회 API
+     * [GET] /stores/accounts
+     * @return BaseResponse<List<AccountInfo>>
+     */
+    @ResponseBody
+    @GetMapping ("/accounts")
+    public BaseResponse<List<AccountInfo>> getAccounts() throws BaseException {
+        // jwt에서 id 추출
+        int userId = jwtService.getUserId();
+
+        List<AccountInfo> result = storeProvider.getAccounts(userId);
+
+        return new BaseResponse<>(result);
+    }
+
+    /**
+     * 계좌 추가 API
+     * [POST] /stores/accounts
+     * @return BaseResponse<Integer>
+     */
+    @ResponseBody
+    @PostMapping("/accounts")
+    public BaseResponse<Integer> registerAccount(@RequestBody @Valid PostAccountReq accountInfo) throws BaseException {
+        // jwt에서 id 추출
+        int userId = jwtService.getUserId();
+
+        int result = storeService.registerAccount(userId, accountInfo);
+
+        return new BaseResponse<>(result);
+    }
+
+    /**
+     * 계좌 수정 API
+     * [POST] /stores/accounts
+     * @return BaseResponse<Integer>
+     */
+    @ResponseBody
+    @PutMapping("/accounts/{account-id}")
+    public BaseResponse<String> modifyAccount(@PathVariable("account-id") int accountId,
+                                              @RequestBody @Valid PostAccountReq accountInfo) throws BaseException{
+        // jwt에서 id 추출
+        int userId = jwtService.getUserId();
+
+        storeService.modifyAccount(userId, accountId, accountInfo);
+
+        return new BaseResponse<>(UPDATE_SUCCESS);
+    }
+
+    /**
+     * 계좌 삭제 API
+     * [DELETE] /stores/accounts/{account-id}
+     * @return BaseResponse<String>
+     */
+    @ResponseBody
+    @DeleteMapping("/accounts/{account-id}")
+    public BaseResponse<String> removeAccount(@PathVariable("account-id") int accountId) throws BaseException {
+        // jwt에서 id 추출
+        int userId = jwtService.getUserId();
+
+        storeService.removeAccount(userId, accountId);
+
+        return new BaseResponse<>(DELETE_SUCCESS);
+    }
+
+
+}
 
     // 페이징 처리
 //    /**
@@ -211,4 +278,3 @@ public class StoreController {
 //        return new BaseResponse<>(result);
 //    }
 
-}

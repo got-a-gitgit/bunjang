@@ -42,6 +42,20 @@ public class StoreDao {
         return this.jdbcTemplate.queryForObject(resultQuery, String.class, userId, followId); // 결과 반환
     }
 
+    /** 계좌 등록 **/
+    public int insertAccount(int userId, PostAccountReq accountInfo){
+        String query = "INSERT INTO account(user_id, account_holder, bank_id, account_number, default_flag) " +
+                        "VALUES (?, ?, ?, ?, ? )";
+        Object[] queryParams = new Object[]{userId, accountInfo.getName(), accountInfo.getBankId(),
+                                accountInfo.getAccountNumber(), accountInfo.getDefaultFlag()};
+
+        this.jdbcTemplate.update(query, queryParams);
+
+        String resultQuery = "SELECT last_insert_id()";
+
+        return this.jdbcTemplate.queryForObject(resultQuery, int.class); // 결과 반환
+    }
+
     // Select SQL
     /** 유저 식별번호 확인 **/
     public int selectUserId(int userId){
@@ -243,6 +257,68 @@ public class StoreDao {
                 ), userId);
     }
 
+    /** 계좌 중복 확인 **/
+    public int selectDuplicatedAccount(int bankId, String accountNumber){
+        String query = "SELECT EXISTS( " +
+                        "SELECT account_number FROM account " +
+                        "WHERE bank_id = ? AND account_number = ?)";
+        return this.jdbcTemplate.queryForObject(query, int.class, bankId, accountNumber);
+    }
+
+    /** 최대 계좌(2개) 등록 여부 확인 **/
+    public int selectMaxAccount(int userId){
+        String query = "SELECT COUNT(user_id) FROM account " +
+                         "WHERE user_id = ?";
+        return this.jdbcTemplate.queryForObject(query, int.class, userId);
+    }
+
+    /** 기본 계좌 ID 조회 **/
+    public int selectMainAccount(int userId){
+        String query = "SELECT account_id FROM account " +
+                        "WHERE user_id =? AND default_flag = 'Y'";
+        return this.jdbcTemplate.queryForObject(query, int.class, userId);
+    }
+
+    /** 일반 계좌 ID 조회 **/
+    public int selectNotMainAccount(int userId){
+        String query = "SELECT account_id FROM account " +
+                "WHERE user_id =? AND default_flag = 'N'";
+        return this.jdbcTemplate.queryForObject(query, int.class, userId);
+    }
+
+    /** 계좌 존재 확인 **/
+    public int selectAccountExist(int userId, int accountId){
+        String query = "SELECT EXISTS(SELECT * FROM account WHERE user_id = ? AND account_id = ?)";
+
+        return this.jdbcTemplate.queryForObject(query, int.class, userId, accountId);
+
+    }
+
+    /** 계좌 번호 확인 **/
+    public String selectAccountNumber(int accountId){
+        String query = "SELECT account_number FROM account " +
+                        "WHERE account_id = ?";
+        return this.jdbcTemplate.queryForObject(query, String.class, accountId);
+    }
+
+    /** 계좌 목록 조회 **/
+    public List<AccountInfo> selectAccounts(int userId){
+        String query = "SELECT account_id, default_flag, account.bank_id, bank_logo_url, name, account_number, account_holder " +
+                        "FROM account " +
+                        "INNER JOIN bank_type bt ON account.bank_id = bt.bank_id " +
+                        "WHERE user_id = ?";
+
+        return this.jdbcTemplate.query(query,
+                (rs, rowNum) -> new AccountInfo(
+                        rs.getInt("account_id"),
+                        rs.getString("default_flag"),
+                        rs.getInt("account.bank_id"),
+                        rs.getString("bank_logo_url"),
+                        rs.getString("name"),
+                        rs.getString("account_number"),
+                        rs.getString("account_holder")),
+                userId);
+    }
 
     // Update SQL
     /** 상점 소개 수정 **/
@@ -270,6 +346,36 @@ public class StoreDao {
 
         return this.jdbcTemplate.queryForObject(resultQuery, String.class, userId, followId); // 결과 반환
     }
+
+    /** 기본 결제 계좌 변경 **/
+    public void updateAccountDefaultValue(int accountId, String isMain){
+        String query = "UPDATE account SET default_flag = ? " +
+                        "WHERE account_id = ?";
+
+        this.jdbcTemplate.update(query, isMain, accountId);
+    }
+
+    /** 계좌 수정 **/
+    public int updateAccount(int accountId, PostAccountReq accountInfo){
+        String query = "UPDATE account " +
+                        "SET account_holder = ?, bank_id = ?, account_number = ?, default_flag = ? " +
+                        "WHERE account_id = ?";
+
+        Object[] queryParams = new Object[]{accountInfo.getName(), accountInfo.getBankId(),
+                accountInfo.getAccountNumber(), accountInfo.getDefaultFlag(), accountId};
+
+        return this.jdbcTemplate.update(query, queryParams);
+    }
+
+    // Delete SQL
+    /** 계좌 삭제 **/
+    public int deleteAccount(int accountId){
+        String query = "DELETE FROM account WHERE account_id = ?";
+
+        return this.jdbcTemplate.update(query, accountId);
+    }
+
+}
 
     // 페이징 처리
 //    /** 상점 거래내역(판매) 조회 **/
@@ -299,4 +405,4 @@ public class StoreDao {
 //                        rs.getString("t.status")),
 //                queryParams);
 //    }
-}
+

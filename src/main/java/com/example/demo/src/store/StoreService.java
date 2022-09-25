@@ -3,6 +3,7 @@ package com.example.demo.src.store;
 import com.example.demo.config.BaseException;
 import com.example.demo.src.store.model.PatchStoreProfileReq;
 import com.example.demo.src.store.model.PatchStoreProfileRes;
+import com.example.demo.src.store.model.PostAccountReq;
 import com.example.demo.utils.S3Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,6 +125,93 @@ public class StoreService {
         } catch (Exception e){
             logger.error("FollowingNotify Error", e);
             throw new BaseException(FAIL_NOTIFY_STORE);
+        }
+    }
+
+    /** 계좌 등록 **/
+    public int registerAccount(int userId, PostAccountReq accountInfo) throws BaseException {
+
+        // 계좌 중복 확인
+        int isDuplicated = storeProvider.getDuplicatedAccount(accountInfo.getBankId(), accountInfo.getAccountNumber());
+        if (isDuplicated == 1){
+            throw new BaseException(DUPLICATE_ACCOUNT);
+        }
+
+        // 최대 계좌 수를 등록했는지 확인
+        int isMax = storeProvider.getMaxAccount(userId);
+        if (isMax == 2){    // 최대 계좌 수 2개가 입력됨
+            throw new BaseException(EXCEEDED_ACCOUNT);
+        } else if (isMax == 1 ){  // 이미 계좌가 1개 등록된 상태에서 기본계좌를 변경하는 경우
+            if (accountInfo.getDefaultFlag().equals("Y")) {
+                int mainAccountId = storeProvider.getMainAccount(userId);
+                storeDao.updateAccountDefaultValue(mainAccountId, "N");
+            }
+        } else {    // 첫 계좌
+            accountInfo.setDefaultFlag("Y");
+        }
+
+        try {
+            return storeDao.insertAccount(userId, accountInfo);
+        } catch (Exception e){
+            logger.error("RegisterAccount Error", e);
+            throw new BaseException(INSERT_FAIL);
+        }
+
+    }
+
+    /** 계좌 수정 **/
+    public void modifyAccount(int userId, int accountId, PostAccountReq accountInfo) throws BaseException {
+        // 계좌 유효성 확인
+        int isOk = storeProvider.getAvailableAccount(userId, accountId);
+        if (isOk == 0){
+            throw new BaseException(INVALID_ACCESS);
+        }
+
+        String remainAccountNumber = storeProvider.getAccountNumber(accountId);
+        if (!accountInfo.getAccountNumber().equals(remainAccountNumber)){
+            // 계좌 중복 확인
+            int isDuplicated = storeProvider.getDuplicatedAccount(accountInfo.getBankId(), accountInfo.getAccountNumber());
+            if (isDuplicated == 1){
+                throw new BaseException(DUPLICATE_ACCOUNT);
+            }
+        }
+
+        // 최대 계좌 수를 등록했는지 확인
+        int isMax = storeProvider.getMaxAccount(userId);
+        if (isMax == 2) {    // 최대 계좌 수 2개가 입력됨
+            int mainAccountId = storeProvider.getMainAccount(userId);
+            // 수정 계좌의 기본 계좌 설정 해제 시
+            if (mainAccountId == accountId && accountInfo.getDefaultFlag().equals("N")){
+                int newMainAccountId = storeProvider.getNotMainAccount(userId);
+                storeDao.updateAccountDefaultValue(newMainAccountId, "Y");
+            }
+            // 수정 계좌를 기본 계좌로 변경 시
+            if (mainAccountId != accountId && accountInfo.getDefaultFlag().equals("Y")){
+                storeDao.updateAccountDefaultValue(mainAccountId, "N");
+            }
+        }
+
+        try {
+            storeDao.updateAccount(accountId, accountInfo);
+        } catch (Exception e){
+            logger.error("ModifyAccount Error", e);
+            throw new BaseException(UPDATE_FAIL);
+        }
+    }
+
+    /** 계좌 삭제 **/
+    public void removeAccount(int userId, int accountId) throws BaseException{
+        // 계좌 유효성 확인
+        int isOk = storeProvider.getAvailableAccount(userId, accountId);
+        if (isOk == 0){
+            throw new BaseException(INVALID_ACCESS);
+        }
+
+        try {
+            storeDao.deleteAccount(accountId);
+        } catch (Exception e){
+            logger.error("RemoveAccount Error", e);
+            throw new BaseException(FAIL_DELETE_ACCOUNT);
         }
     }
 

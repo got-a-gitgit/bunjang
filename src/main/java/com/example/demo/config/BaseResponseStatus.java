@@ -58,7 +58,10 @@ public enum BaseResponseStatus {
     FAIL_REMOVE_REVIEW(false, 422, "거래후기 삭제에 실패했습니다."),
     EMPTY_HEADER_TRADE_ID(false, 400, "거래 식별번호(Id)를 입력하세요."),
     FAIL_MODIFY_REVIEW(false, 423, "거래후기 수정에 실패했습니다."),
-
+    DUPLICATE_ACCOUNT(false, 424, "이미 등록된 계좌입니다."),
+    EXCEEDED_ACCOUNT(false, 425, "최대 등록 가능한 계좌는 2개입니다."),
+    FAIL_GET_ACCOUNTS(false, 426, "계좌 목록 조회에 실패했습니다."),
+    FAIL_DELETE_ACCOUNT(false, 427, "계좌 삭제에 실패했습니다."),
 
 
     // 451-499 조이

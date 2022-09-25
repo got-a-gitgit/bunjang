@@ -147,6 +147,76 @@ public class StoreProvider {
         }
     }
 
+    /** 계좌 중복 조회 **/
+    public int getDuplicatedAccount(int bankId, String accountNumber) throws BaseException {
+        try {
+            return storeDao.selectDuplicatedAccount(bankId, accountNumber);
+        } catch (Exception e) {
+            logger.error("GetDuplicatedAccount Error", e);
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /** 등록 계좌 수 조회 **/
+    public int getMaxAccount(int userId) throws BaseException {
+        try {
+            return storeDao.selectMaxAccount(userId);
+        } catch (Exception e) {
+            logger.error("GetMaxAccount Error", e);
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /** 기본 계좌 ID 조회 **/
+    public int getMainAccount(int userId) throws BaseException{
+        try {
+            return storeDao.selectMainAccount(userId);
+        } catch (Exception e){
+            logger.error("GetMainAccount Error", e);
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /** 일반 계좌 ID 조회 **/
+    public int getNotMainAccount(int userId) throws BaseException{
+        try {
+            return storeDao.selectNotMainAccount(userId);
+        } catch (Exception e){
+            logger.error("GetNotMainAccount Error", e);
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /** 계좌 번호 조회 **/
+    public String getAccountNumber(int accountId) throws BaseException{
+        try {
+            return storeDao.selectAccountNumber(accountId);
+        } catch (Exception e){
+            logger.error("GetAccountNumber Error", e);
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /** 계좌 유효성 확인 **/
+    public int getAvailableAccount(int userId, int accountId) throws BaseException{
+        try {
+            return storeDao.selectAccountExist(userId, accountId);
+        } catch (Exception e){
+            logger.error("GetAvailableAccount Error", e);
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /** 계좌 목록 조회 **/
+    public List<AccountInfo> getAccounts(int userId) throws BaseException {
+        try {
+            return storeDao.selectAccounts(userId);
+        }catch (Exception e){
+            logger.error("GetMainAccount Error", e);
+            throw new BaseException(FAIL_GET_ACCOUNTS);
+        }
+    }
+
     // 페이징 처리
 //    /** 상점의 거래내역(판매) 조회 **/
 //    public GetSalesRes getSales(int userId, int tradeId, String date, int size) throws BaseException {
