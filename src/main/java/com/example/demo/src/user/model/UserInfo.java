@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class UserInfoRes {
+public class UserInfo {
     private int userId;
     private String snsFlag;
     private String storeName;

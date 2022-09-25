@@ -1,6 +1,6 @@
 package com.example.demo.src.user;
 
-import com.example.demo.src.user.model.UserInfoRes;
+import com.example.demo.src.user.model.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -56,7 +56,7 @@ public class UserDao {
 
     // Check SQL
     /** 이메일 확인 **/
-    public UserInfoRes checkUserEmail(String email) {
+    public UserInfo checkUserEmail(String email) {
         String query = "SELECT u.user_id, sns_flag, store_name, u.status " +
                         "FROM user u " +
                         "LEFT JOIN store s ON u.user_id = s.user_id " +
@@ -64,7 +64,7 @@ public class UserDao {
 
         try {
             return this.jdbcTemplate.queryForObject(query,
-                    (rs, rowNum) -> new UserInfoRes(
+                    (rs, rowNum) -> new UserInfo(
                             rs.getInt("u.user_id"),
                             rs.getString("sns_flag"),
                             rs.getString("store_name"),
