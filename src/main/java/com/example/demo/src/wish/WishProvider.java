@@ -20,16 +20,13 @@ import static com.example.demo.config.BaseResponseStatus.*;
 @Service
 public class WishProvider {
 
-    private final WishDao wishDao;
-    private final JwtService jwtService;
-
-
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final WishDao wishDao;
+
     @Autowired
-    public WishProvider(WishDao wishDao, JwtService jwtService) {
+    public WishProvider(WishDao wishDao) {
         this.wishDao = wishDao;
-        this.jwtService = jwtService;
     }
 
 
