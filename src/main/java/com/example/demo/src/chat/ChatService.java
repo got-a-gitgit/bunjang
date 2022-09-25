@@ -55,5 +55,13 @@ public class ChatService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public void leaveChatroom(int userId, int chatroomId) throws BaseException {
+        try{
+            chatDao.leaveChatroom(userId, chatroomId);
+        } catch(Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }
 

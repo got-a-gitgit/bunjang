@@ -58,4 +58,10 @@ public class ChatDao {
         String query ="UPDATE user_chatroom SET status='Y' WHERE room_id=?";
         jdbcTemplate.update(query, chatroomId);
     }
+
+    public void leaveChatroom(int userId, int chatroomId) {
+        String query ="UPDATE user_chatroom SET status='N' WHERE user_id=? AND room_id=?";
+        Object[] params = new Object[]{userId, chatroomId};
+        jdbcTemplate.update(query, params);
+    }
 }
