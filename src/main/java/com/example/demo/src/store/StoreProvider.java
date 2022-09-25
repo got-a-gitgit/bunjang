@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class StoreProvider {
         try {
             return storeDao.selectStoreName(userId, name);
         } catch (Exception e){
-            logger.error("CheckUserId Error", e);
+            logger.error("CheckDuplicatesStoreName Error", e);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -66,7 +67,7 @@ public class StoreProvider {
         try {
             return storeDao.selectStoreInfo(storeId);
         } catch (Exception e){
-            logger.error("GetStoreProfile Error", e);
+            logger.error("GetStoreInfo Error", e);
             throw new BaseException(FAIL_GET_STOREINFO);
         }
     }
@@ -81,7 +82,7 @@ public class StoreProvider {
         try {
             return storeDao.selectSales(userId, type);
         } catch (Exception e){
-            logger.error("GetWishes", e);
+            logger.error("GetSales", e);
             throw new BaseException(FAIL_GET_SALES);
         }
     }
@@ -96,7 +97,7 @@ public class StoreProvider {
         try {
             return storeDao.selectPurchases(userId, type);
         } catch (Exception e){
-            logger.error("GetWishes", e);
+            logger.error("GetPurchases", e);
             throw new BaseException(FAIL_GET_PURCHASE);
         }
     }
@@ -112,22 +113,36 @@ public class StoreProvider {
     }
 
     /** 상점의 팔로워 목록 조회 **/
-    public List<GetFollowRes> getFollowers(int storeId, int lastId) throws BaseException {
+    public GetFollowRes getFollowers(int storeId, int lastId, int size) throws BaseException {
         // 유효한 유저인지 확인
         int isUser = checkUserId(storeId);
         if (isUser == 0) {
             throw new BaseException(INVALID_ACCESS);
         }
         try {
-            return storeDao.selectFollowers(storeId, lastId);
+            List<followInfo> followInfo = storeDao.selectFollowers(storeId, lastId, size);
+            int lastFollowId = 0;
+
+            // 다음 페이지 여부
+            boolean hasNextPage = true;
+            if (followInfo.size() != size + 1) {
+                hasNextPage = false;
+            }
+            if (hasNextPage){
+                followInfo.remove(size);  // 마지막 데이터 삭제
+                lastFollowId = followInfo.get(size-1).getUserId();       // 마지막 팔로워 Id
+            }
+
+            return new GetFollowRes(followInfo, hasNextPage, lastFollowId);
         } catch (Exception e) {
-            logger.error("GetStoreProfile Error", e);
+            logger.error("GetFollowers Error", e);
             throw new BaseException(DATABASE_ERROR);
         }
     }
 
     /** 상점의 팔로잉 목록 조회 **/
-    public List<GetFollowRes> getFollowings(int storeId, int lastId) throws BaseException {
+    @Transactional(rollbackFor = Exception.class)
+    public GetFollowRes getFollowings(int storeId, int lastId, int size) throws BaseException {
         // 유효한 유저인지 확인
         int isUser = checkUserId(storeId);
         if (isUser == 0) {
@@ -135,14 +150,26 @@ public class StoreProvider {
         }
 
         try {
-            List<GetFollowRes> result = storeDao.selectFollowings(storeId, lastId);
-            for (GetFollowRes store : result){
+            List<followInfo> followInfo = storeDao.selectFollowings(storeId, lastId, size);
+            for (followInfo store : followInfo){
                 List<ProductInfo> products = storeDao.selectProductsByStore(store.getUserId());
                 store.setProductInfoList(products);
             }
-            return result;
+            int lastFollowId = 0;
+
+            // 다음 페이지 여부
+            boolean hasNextPage = true;
+            if (followInfo.size() != size + 1) {
+                hasNextPage = false;
+            }
+            if (hasNextPage){
+                followInfo.remove(size);  // 마지막 데이터 삭제
+                lastFollowId = followInfo.get(size-1).getUserId();       // 마지막 팔로잉 Id
+            }
+
+            return new GetFollowRes(followInfo, hasNextPage, lastFollowId);
         } catch (Exception e) {
-            logger.error("GetStoreProfile Error", e);
+            logger.error("GetFollowings Error", e);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -212,7 +239,7 @@ public class StoreProvider {
         try {
             return storeDao.selectAccounts(userId);
         }catch (Exception e){
-            logger.error("GetMainAccount Error", e);
+            logger.error("GetAccounts Error", e);
             throw new BaseException(FAIL_GET_ACCOUNTS);
         }
     }

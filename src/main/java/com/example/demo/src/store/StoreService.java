@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import static com.example.demo.config.BaseResponseStatus.*;
@@ -56,6 +57,7 @@ public class StoreService {
     }
 
     /** 상점 소개 편집 **/
+    @Transactional(rollbackFor = Exception.class)
     public PatchStoreProfileRes modifyStoreProfile(int userId, PatchStoreProfileReq storeProfile) throws BaseException {
         // 프로필 이미지 정보
         String originImageUrl = storeProfile.getOriginImageUrl();    // 기존의 이미지
@@ -103,7 +105,7 @@ public class StoreService {
         try {
             return storeDao.insertFollowing(userId, followId);
         } catch (Exception e){
-            logger.error("Following Error", e);
+            logger.error("Follow Error", e);
             throw new BaseException(FAIL_FOLLOW_STORE);
         }
     }
@@ -129,6 +131,7 @@ public class StoreService {
     }
 
     /** 계좌 등록 **/
+    @Transactional(rollbackFor = Exception.class)
     public int registerAccount(int userId, PostAccountReq accountInfo) throws BaseException {
 
         // 계좌 중복 확인
@@ -160,6 +163,7 @@ public class StoreService {
     }
 
     /** 계좌 수정 **/
+    @Transactional(rollbackFor = Exception.class)
     public void modifyAccount(int userId, int accountId, PostAccountReq accountInfo) throws BaseException {
         // 계좌 유효성 확인
         int isOk = storeProvider.getAvailableAccount(userId, accountId);

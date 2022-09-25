@@ -2,7 +2,6 @@ package com.example.demo.src.wish;
 
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.product.model.PostProductRes;
 import com.example.demo.utils.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,14 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 import static com.example.demo.config.BaseResponseStatus.DATABASE_ERROR;
 
 @Transactional(rollbackFor = Exception.class)
 @Service
 public class WishService {
     final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final WishDao wishDao;
     private final WishProvider wishProvider;
     private final JwtService jwtService;
@@ -36,6 +34,7 @@ public class WishService {
             wishDao.createWish(userId,productId);
 
         } catch (Exception exception) {
+            logger.error("createWish", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -46,6 +45,7 @@ public class WishService {
             wishDao.deleteWish(userId,productId);
 
         } catch (Exception exception) {
+            logger.error("deleteWish", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }

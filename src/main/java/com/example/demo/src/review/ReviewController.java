@@ -58,7 +58,7 @@ public class ReviewController {
 
     /**
      * 거래후기 삭제 API
-     * [GET] /reviews/{review-id}
+     * [DELETE] /reviews/{review-id}
      * @return BaseResponse<String>
      */
     @ResponseBody
@@ -74,7 +74,7 @@ public class ReviewController {
 
     /**
      * 거래후기 수정 API
-     * [GET] /reviews/{review-id}
+     * [PUT] /reviews/{review-id}
      * @return BaseResponse<String>
      */
     @ResponseBody

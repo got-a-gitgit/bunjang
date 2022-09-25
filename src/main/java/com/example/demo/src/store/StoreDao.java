@@ -167,7 +167,7 @@ public class StoreDao {
 
 
     /** 팔로워 목록 조회 **/
-    public List<GetFollowRes> selectFollowers(int storeId, int lastId){
+    public List<followInfo> selectFollowers(int storeId, int lastId, int size){
         String query = "SELECT s.user_id, profile_image_url, store_name, alarm_flag, IFNULL(followers, 0) AS followers, IFNULL(products, 0) AS products " +
                         "FROM store s " +
                         "LEFT JOIN (SELECT follower, alarm_flag, COUNT(IF(follower IS NULL, 'NULL', follower)) AS followers, updated_at  FROM follow GROUP BY follower) followers_tb " +
@@ -177,22 +177,22 @@ public class StoreDao {
                         "WHERE s.user_id IN (SELECT followee FROM follow origin WHERE origin.follower = ? AND origin.status ='Y') " +
                         "AND s.user_id > ? " +
                         "ORDER BY followers_tb.updated_at, user_id " +
-                        "LIMIT 20";
+                        "LIMIT ?";
 
 
         return this.jdbcTemplate.query(query,
-                (rs, rowNum) -> new GetFollowRes(
+                (rs, rowNum) -> new followInfo(
                         rs.getInt("s.user_id"),
                         rs.getString("profile_image_url"),
                         rs.getString("store_name"),
                         rs.getString("alarm_flag"),
                         rs.getInt("followers"),
                         rs.getInt("products")),
-                storeId, lastId);
+                storeId, lastId, size + 1);
     }
 
     /** 팔로잉 목록 조회 **/
-    public List<GetFollowRes> selectFollowings(int storeId, int lastId){
+    public List<followInfo> selectFollowings(int storeId, int lastId, int size){
         String query = "SELECT s.user_id, profile_image_url, store_name, alarm_flag, IFNULL(followers, 0) AS followers, IFNULL(products, 0) AS products " +
                 "FROM store s " +
                 "LEFT JOIN (SELECT follower, alarm_flag, COUNT(IF(follower IS NULL, 'NULL', follower)) AS followers, updated_at FROM follow GROUP BY follower) followers_tb " +
@@ -202,17 +202,17 @@ public class StoreDao {
                 "WHERE s.user_id IN (SELECT follower FROM follow origin WHERE origin.followee = ? AND origin.status ='Y') " +
                 "AND s.user_id > ? " +
                 "ORDER BY followers_tb.updated_at, user_id " +
-                "LIMIT 20";
+                "LIMIT ?";
 
         return this.jdbcTemplate.query(query,
-                (rs, rowNum) -> new GetFollowRes(
+                (rs, rowNum) -> new followInfo(
                         rs.getInt("s.user_id"),
                         rs.getString("profile_image_url"),
                         rs.getString("store_name"),
                         rs.getString("alarm_flag"),
                         rs.getInt("followers"),
                         rs.getInt("products")),
-                storeId, lastId);
+                storeId, lastId, size + 1);
     }
 
     /** 상점 거래내역(판매) 조회 **/
@@ -306,7 +306,7 @@ public class StoreDao {
         String query = "SELECT account_id, default_flag, account.bank_id, bank_logo_url, name, account_number, account_holder " +
                         "FROM account " +
                         "INNER JOIN bank_type bt ON account.bank_id = bt.bank_id " +
-                        "WHERE user_id = ?";
+                        "WHERE user_id = ? ORDER BY account.created_at";
 
         return this.jdbcTemplate.query(query,
                 (rs, rowNum) -> new AccountInfo(

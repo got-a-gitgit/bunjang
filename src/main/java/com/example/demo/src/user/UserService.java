@@ -2,7 +2,7 @@ package com.example.demo.src.user;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.src.user.model.PostLoginRes;
-import com.example.demo.src.user.model.UserInfoRes;
+import com.example.demo.src.user.model.UserInfo;
 import com.example.demo.utils.JwtService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,7 +41,7 @@ public class UserService {
 
         try{
         // 등록된 유저인지 확인
-        UserInfoRes userInfo = userProvider.checkUserEmail(email);
+        UserInfo userInfo = userProvider.checkUserEmail(email);
 
         if (userInfo == null){ // 미등록 유저
             // 회원가입
@@ -86,7 +86,7 @@ public class UserService {
             String email = jsonNode.get("kakao_account").get("email").asText();
 
             // 등록된 유저인지 확인
-            UserInfoRes userInfo = userProvider.checkUserEmail(email);
+            UserInfo userInfo = userProvider.checkUserEmail(email);
 
             if (userInfo == null){ // 미등록 유저
                 // 회원가입 및 sns 연동

@@ -1,7 +1,7 @@
 package com.example.demo.src.user;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.user.model.UserInfoRes;
+import com.example.demo.src.user.model.UserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class UserProvider {
     }
 
     /** 이메일 존재 여부 확인 **/
-    public UserInfoRes checkUserEmail(String email) throws BaseException {
+    public UserInfo checkUserEmail(String email) throws BaseException {
         try {
             return userDao.checkUserEmail(email);
         } catch (Exception e){

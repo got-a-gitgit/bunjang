@@ -3,7 +3,6 @@ package com.example.demo.src.store;
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
 import com.example.demo.src.store.model.*;
-import com.example.demo.src.wish.model.GetWishesRes;
 import com.example.demo.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -80,7 +79,7 @@ public class StoreController {
 
     /**
      * 상점 거래내역(판매) 조회 API
-     * [GET] /stores/sales
+     * [GET] /stores/sales?type={type}
      * @return BaseResponse<List<TradeInfo>>
      */
     @ResponseBody
@@ -165,13 +164,15 @@ public class StoreController {
     /**
      * 상점 팔로워 목록 조회 API
      * [GET] /stores/{store-id}/followers
-     * @return BaseResponse<List<GetFollowRes>>
+     * @return BaseResponse<GetFollowRes>
      */
     @ResponseBody
     @GetMapping("/{store-id}/followers")
-    public BaseResponse<List<GetFollowRes>> getFollowers(@PathVariable("store-id") int storeId,
-                                                         @RequestParam(value = "id", defaultValue = "0") int lastId) throws BaseException {
-        List<GetFollowRes> followers = storeProvider.getFollowers(storeId, lastId);
+    public BaseResponse<GetFollowRes> getFollowers(@PathVariable("store-id") int storeId,
+                                                   @RequestParam(value = "id", defaultValue = "0") int lastId,
+                                                   @RequestParam(value = "size", defaultValue = "100") int size) throws BaseException {
+
+        GetFollowRes followers = storeProvider.getFollowers(storeId, lastId, size);
 
         return new BaseResponse<>(followers);
     }
@@ -179,13 +180,15 @@ public class StoreController {
     /**
      * 상점 팔로잉 목록 조회 API
      * [GET] /stores/{store-id}/followings
-     * @return BaseResponse<List<GetFollowRes>>
+     * @return BaseResponse<GetFollowRes>
      */
     @ResponseBody
     @GetMapping("/{store-id}/followings")
-    public BaseResponse<List<GetFollowRes>> getFollowings(@PathVariable("store-id") int storeId,
-                                                          @RequestParam(value = "id", defaultValue = "0") int lastId) throws BaseException {
-        List<GetFollowRes> followings = storeProvider.getFollowings(storeId, lastId);
+    public BaseResponse<GetFollowRes> getFollowings(@PathVariable("store-id") int storeId,
+                                                        @RequestParam(value = "id", defaultValue = "0") int lastId,
+                                                    @RequestParam(value = "size", defaultValue = "100") int size) throws BaseException {
+
+        GetFollowRes followings = storeProvider.getFollowings(storeId, lastId, size);
 
         return new BaseResponse<>(followings);
 
@@ -225,8 +228,8 @@ public class StoreController {
 
     /**
      * 계좌 수정 API
-     * [POST] /stores/accounts
-     * @return BaseResponse<Integer>
+     * [PUT] /stores/accounts/{account-id}
+     * @return BaseResponse<String>
      */
     @ResponseBody
     @PutMapping("/accounts/{account-id}")

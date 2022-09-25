@@ -35,7 +35,7 @@ public class WishController {
 
     /**
      * 관심 상품 목록 조회 API
-     * [POST] /wishes?id={id}&date={date}&size={size}
+     * [GET] /wishes?id={id}&date={date}&size={size}
      * @return BaseResponse<GetWishesRes>
      */
     @ResponseBody
