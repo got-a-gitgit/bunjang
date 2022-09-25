@@ -75,21 +75,40 @@ public class ProductService {
     public void increaseProductView(int productId) throws BaseException {
         try {
             //상품 조회수 1증가
-            GetProductRes product = productDao.getProduct(productId);
-            int view = product.getView();
-            productDao.increaseProductView(productId, view + 1);
-        } catch (BaseException baseException) {
-            throw baseException;
+            productDao.increaseProductView(productId);
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
     }
 
-    /** 상품 판매 상태 변경**/
+    /** 상품 판매 상태 변경 **/
     public FetchProductStatusRes updateProductStatus(int productId, String status) throws BaseException {
         try {
             productDao.updateStatus(productId, status);
             return new FetchProductStatusRes(productId, status);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /** 상품 수정 **/
+    public void updateProduct(int productId, PutProductReq putProductReq, List<String> productImages) throws BaseException {
+        try {
+            //상품 이미지 삭제
+            if (putProductReq.getDeletedImageList()==null) {
+                productDao.deleteProductImage(putProductReq.getDeletedImageList());
+            }
+            //태그 등록
+            List<Integer> tagIds = productDao.createTags(putProductReq.getTags());
+
+            //상품-태그 등록
+            int updatedRowsNumber = productDao.createProductTags(productId, tagIds);
+
+            //상품 이미지 등록
+            int updatedImagesNum = productDao.createProductImages(productId, productImages);
+
+            //상품 수정
+            productDao.updateProduct(productId,putProductReq);
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }

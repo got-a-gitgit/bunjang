@@ -36,7 +36,7 @@ public class SearchController {
      */
     @ResponseBody
     @GetMapping("")
-    public BaseResponse<List<SearchProduct>> getSearchResult(@RequestParam(value = "category-id", required = false) int categoryId,
+    public BaseResponse<List<SearchProduct>> getSearchResult(@RequestParam(value = "category-id", required = true) int categoryId,
                                                           @RequestParam(value = "safe-payment", required = false) String safePayment,
                                                           @RequestParam(value = "price-from", required = false) Integer priceFrom,
                                                           @RequestParam(value = "price-to", required = false) Integer priceTo,

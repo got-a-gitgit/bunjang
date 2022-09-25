@@ -8,12 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static com.example.demo.config.BaseResponseStatus.*;
 
 //Provider : Read의 비즈니스 로직 처리
+
 @Service
 public class ProductProvider {
 
@@ -32,17 +34,19 @@ public class ProductProvider {
 
     /** 상품 상세 조회 **/
     public GetProductRes getProduct(int productId) throws BaseException {
-        try{
+        try {
             //상품 정보 조회
-            GetProductRes getProductRes =  productDao.getProduct(productId);
+            GetProductRes getProductRes = productDao.getProduct(productId);
             //상품 이미지 조회
-            List<String> images= productDao.getProductImages(productId);
+            List<ProductImage> images = productDao.getProductImages(productId);
             getProductRes.setImages(images);
             //상품 태그 조회
-            List<String> tags= productDao.getProductTags(productId);
+            List<String> tags = productDao.getProductTags(productId);
             getProductRes.setTags(tags);
 
             return getProductRes;
+        } catch (BaseException baseException) {
+            throw baseException;
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
