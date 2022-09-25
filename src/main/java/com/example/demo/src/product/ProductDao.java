@@ -455,6 +455,22 @@ public class ProductDao {
 
     }
 
+    public List<Category> getMainCategoryList() {
+        String query = "SELECT category_id, " +
+                "name, " +
+                "end_flag\n" +
+                "FROM category\n" +
+                "WHERE parent_id IS NULL";
+
+        return this.jdbcTemplate.query(query,
+                (rs, rowNum) -> new Category(
+                        rs.getInt("category_id"),
+                        rs.getString("name"),
+                        rs.getString("end_flag")
+                ));
+
+    }
+
     public void updateStatus(int productId, String status) {
         String query = "UPDATE product SET status=? WHERE product_id=?";
         Object[] params = new Object[]{status, productId};
