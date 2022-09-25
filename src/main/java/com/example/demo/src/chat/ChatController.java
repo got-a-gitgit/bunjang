@@ -47,4 +47,26 @@ public class ChatController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
+
+    /**
+     * 채팅방 나가기 API
+     * [DELETE] /chatrooms/:chatroom-id
+     * @return BaseResponse<String>
+     */
+    //Path-variable
+    @ResponseBody
+    @DeleteMapping("/{chatroom-id}")
+    public BaseResponse leaveChatroom(@PathVariable("chatroom-id") int chatroomId) {
+        try{
+            //jwt에서 id 추출.
+            int userId = jwtService.getUserId();
+
+            //채팅방 나가기
+            chatService.leaveChatroom(userId, chatroomId);
+            return new BaseResponse<>(DELETE_SUCCESS);
+        } catch(BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+
+    }
 }
