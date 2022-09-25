@@ -223,7 +223,7 @@ public class ProductController {
      */
     @ResponseBody
     @PutMapping("/{product-id}")
-    public BaseResponse updateProduct(@PathVariable("product-id")int productId, @ModelAttribute @Valid PutProductReq putProductReq) throws BaseException {
+    public BaseResponse<PutProductRes> updateProduct(@PathVariable("product-id")int productId, @ModelAttribute @Valid PutProductReq putProductReq) throws BaseException {
         //jwt 인증
         int userId= jwtService.getUserId();
 
@@ -237,7 +237,8 @@ public class ProductController {
 
         try{
             productService.updateProduct(productId,putProductReq, imageUrls);
-            return new BaseResponse<>(UPDATE_SUCCESS);
+            PutProductRes putProductRes = new PutProductRes(productId, userId);
+            return new BaseResponse<>(putProductRes, UPDATE_SUCCESS);
         } catch(BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }

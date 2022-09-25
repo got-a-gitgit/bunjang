@@ -516,8 +516,6 @@ public class ProductDao {
     public void deleteProductImage(List<String> deletedImageList) {
         String query ="UPDATE product_image SET status = 'N'\n";
 
-
-
         String imageIds = "";
         for (int i = 0; i < deletedImageList.size(); i++) {
             if (i != deletedImageList.size() - 1) {
@@ -530,5 +528,31 @@ public class ProductDao {
         query+="WHERE product_image_id in ("+imageIds+")";
 
         this.jdbcTemplate.update(query);
+    }
+
+    /** 제거된 상품-태그 삭제 **/
+    public int deleteProductTags(int productId, List<Integer> tagIds) {
+        String query = "UPDATE product_tag SET status='N'\n" +
+                "WHERE product_id =?"+
+                "\nAND tag_id NOT IN (";
+
+
+        for (int i = 0; i < tagIds.size(); i++) {
+            if (i != tagIds.size() - 1) {
+                query += tagIds.get(i) + ", ";
+            } else {
+                query += tagIds.get(i) + ")";
+            }
+
+        }
+
+        return this.jdbcTemplate.update(query, productId);
+    }
+
+    public int deleteAllProductTags(int productId) {
+        String query = "UPDATE product_tag SET status='N'\n" +
+                "WHERE product_id =?";
+
+        return this.jdbcTemplate.update(query, productId);
     }
 }

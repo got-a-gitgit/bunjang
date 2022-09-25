@@ -1,7 +1,6 @@
 package com.example.demo.src.product;
 
 
-
 import com.example.demo.config.BaseException;
 import com.example.demo.src.product.model.*;
 import com.example.demo.utils.JwtService;
@@ -35,9 +34,11 @@ public class ProductService {
     }
 
 
-    /** 상품 등록 **/
+    /**
+     * 상품 등록
+     **/
     public PostProductRes createProduct(PostProductReq postProductReq, List<String> productImages) throws BaseException {
-        try{
+        try {
             //상품 등록
             int productId = productDao.createProduct(postProductReq);
 
@@ -56,7 +57,9 @@ public class ProductService {
         }
     }
 
-    /** 상품 삭제 **/
+    /**
+     * 상품 삭제
+     **/
     public void deleteProduct(int productId) throws BaseException {
         try {
             //상품 삭제
@@ -71,7 +74,9 @@ public class ProductService {
         }
     }
 
-    /** 조회수 증가 **/
+    /**
+     * 조회수 증가
+     **/
     public void increaseProductView(int productId) throws BaseException {
         try {
             //상품 조회수 1증가
@@ -81,7 +86,9 @@ public class ProductService {
         }
     }
 
-    /** 상품 판매 상태 변경 **/
+    /**
+     * 상품 판매 상태 변경
+     **/
     public FetchProductStatusRes updateProductStatus(int productId, String status) throws BaseException {
         try {
             productDao.updateStatus(productId, status);
@@ -91,24 +98,42 @@ public class ProductService {
         }
     }
 
-    /** 상품 수정 **/
+    /**
+     * 상품 수정
+     **/
     public void updateProduct(int productId, PutProductReq putProductReq, List<String> productImages) throws BaseException {
         try {
             //상품 이미지 삭제
-            if (putProductReq.getDeletedImageList()==null) {
+            if (putProductReq.getDeletedImageList().size()!=0) {
                 productDao.deleteProductImage(putProductReq.getDeletedImageList());
             }
             //태그 등록
-            List<Integer> tagIds = productDao.createTags(putProductReq.getTags());
+            List<Integer> tagIds=null;
+            if (putProductReq.getTags().size()!=0) {
+                 tagIds= productDao.createTags(putProductReq.getTags());
+            }
+            
+            //기존 태그 삭제
+            if (tagIds == null) {
+                //태그가 없는 경우 -> 상품-태그 전체 삭제
+                int deletedRowsNumber = productDao.deleteAllProductTags(productId);
+            } else {
+                //제거된 상품-태그 삭제
+                int deletedRowsNumber = productDao.deleteProductTags(productId,tagIds);
+            }
 
-            //상품-태그 등록
-            int updatedRowsNumber = productDao.createProductTags(productId, tagIds);
+            if (tagIds != null) {
+                //상품-태그 등록
+                int updatedRowsNumber = productDao.createProductTags(productId, tagIds);
+            }
 
             //상품 이미지 등록
-            int updatedImagesNum = productDao.createProductImages(productId, productImages);
-
+            if (productImages != null) {
+                int updatedImagesNum = productDao.createProductImages(productId, productImages);
+            }
             //상품 수정
-            productDao.updateProduct(productId,putProductReq);
+            productDao.updateProduct(productId, putProductReq);
+
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
