@@ -231,7 +231,7 @@ public class ProductController {
 
         //S3에 이미지 업로드 및 url 반환
         List<String> imageUrls=null;
-        if (!images.get(0).isEmpty()) {
+        if (images!=null && !images.get(0).isEmpty()) {
              imageUrls= s3Service.uploadImage(images);
         }
 

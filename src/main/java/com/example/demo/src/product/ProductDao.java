@@ -52,7 +52,7 @@ public class ProductDao {
                 postProductReq.getAmount(),
                 postProductReq.getUsed(),
                 postProductReq.getSafePayment(),
-                postProductReq.getExchangePayment(),
+                postProductReq.getExchange(),
                 postProductReq.getContents()
         };
 
@@ -505,7 +505,7 @@ public class ProductDao {
                 putProductReq.getAmount(),
                 putProductReq.getUsed(),
                 putProductReq.getSafePayment(),
-                putProductReq.getExchangePayment(),
+                putProductReq.getExchange(),
                 putProductReq.getContents(),
                 productId
         };

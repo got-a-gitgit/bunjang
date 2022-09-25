@@ -47,7 +47,7 @@ public class PostProductReq {
     private String safePayment;
 
     @NotNull(message = "교환 가능 여부가 입력되지 않았습니다.")
-    private String exchangePayment;
+    private String exchange;
 
     @NotNull(message = "상품 설명이 입력되지 않았습니다.")
     private String contents;

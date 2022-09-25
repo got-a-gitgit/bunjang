@@ -104,12 +104,12 @@ public class ProductService {
     public void updateProduct(int productId, PutProductReq putProductReq, List<String> productImages) throws BaseException {
         try {
             //상품 이미지 삭제
-            if (putProductReq.getDeletedImageList().size()!=0) {
+            if (putProductReq.getDeletedImageList()!=null && putProductReq.getDeletedImageList().size()!=0) {
                 productDao.deleteProductImage(putProductReq.getDeletedImageList());
             }
             //태그 등록
             List<Integer> tagIds=null;
-            if (putProductReq.getTags().size()!=0) {
+            if (putProductReq.getDeletedImageList()!=null && putProductReq.getTags().size()!=0) {
                  tagIds= productDao.createTags(putProductReq.getTags());
             }
             
@@ -128,7 +128,7 @@ public class ProductService {
             }
 
             //상품 이미지 등록
-            if (productImages != null) {
+            if (productImages != null && productImages.size()!=0) {
                 int updatedImagesNum = productDao.createProductImages(productId, productImages);
             }
             //상품 수정
