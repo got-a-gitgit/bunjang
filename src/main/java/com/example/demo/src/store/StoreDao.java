@@ -176,7 +176,7 @@ public class StoreDao {
                         "    ON s.user_id = products_tb.user_id " +
                         "WHERE s.user_id IN (SELECT followee FROM follow origin WHERE origin.follower = ? AND origin.status ='Y') " +
                         "AND s.user_id > ? " +
-                        "ORDER BY followers_tb.updated_at, user_id " +
+                        "ORDER BY user_id " +
                         "LIMIT ?";
 
 
@@ -201,7 +201,7 @@ public class StoreDao {
                 "    ON s.user_id = products_tb.user_id " +
                 "WHERE s.user_id IN (SELECT follower FROM follow origin WHERE origin.followee = ? AND origin.status ='Y') " +
                 "AND s.user_id > ? " +
-                "ORDER BY followers_tb.updated_at, user_id " +
+                "ORDER BY user_id " +
                 "LIMIT ?";
 
         return this.jdbcTemplate.query(query,
