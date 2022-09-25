@@ -32,7 +32,7 @@ public class GetProductRes {
         this.createdAt = createdAt;
     }
 
-    private List<String> images;
+    private List<ProductImage> images;
     private int productId;
     private String name;
     private int userId;

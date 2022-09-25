@@ -52,7 +52,7 @@ public class ProductDao {
                 postProductReq.getAmount(),
                 postProductReq.getUsed(),
                 postProductReq.getSafePayment(),
-                postProductReq.getExchangePayment(),
+                postProductReq.getExchange(),
                 postProductReq.getContents()
         };
 
@@ -149,7 +149,7 @@ public class ProductDao {
                 "c.created_at as created_at\n" +
                 "FROM product p\n" +
                 "JOIN category c on p.category_id = c.category_id\n" +
-                "JOIN wish w on p.product_id = w.product_id\n" +
+                "LEFT JOIN wish w on p.product_id = w.product_id\n" +
                 "WHERE p.product_id = ? AND p.status!='D'\n " +
                 "GROUP BY p.product_id";
 
@@ -181,14 +181,15 @@ public class ProductDao {
     }
 
     /**상품 이미지 조회**/
-    public List<String> getProductImages(int productId) {
-        String query = "SELECT url\n" +
+    public List<ProductImage> getProductImages(int productId) {
+        String query = "SELECT product_image_id, url\n" +
                 "FROM product p\n" +
                 "JOIN product_image pi on p.product_id = pi.product_id\n" +
                 "WHERE p.product_id = ?";
 
         return this.jdbcTemplate.query(query,
-                (rs,rowNum)-> new String(
+                (rs,rowNum)-> new ProductImage(
+                        rs.getInt("product_image_id"),
                         rs.getString("url")
                 ),productId);
     }
@@ -208,10 +209,9 @@ public class ProductDao {
     }
 
     /**상품 조회수 증가**/
-    public void increaseProductView(int productId, int view) {
-        String query = "UPDATE product SET view = ? WHERE product_id=?";
-        Object[] params = new Object[]{view,productId};
-        this.jdbcTemplate.update(query, params);
+    public void increaseProductView(int productId) {
+        String query = "UPDATE product SET view = view+1 WHERE product_id=?";
+        this.jdbcTemplate.update(query, productId);
     }
 
     /**상점 상품목록 조회 with 무한스크롤**/
@@ -496,5 +496,79 @@ public class ProductDao {
                         rs.getString("updated_at")
                 )
                 ,productId);
+    }
+
+    public void updateProduct(int productId, PutProductReq putProductReq) {
+        String query = "UPDATE product\n" +
+                "SET name=?,\n" +
+                "    price=?,\n" +
+                "    category_id=?,\n" +
+                "    shipping_fee_included_flag=?,\n" +
+                "    location=?,\n" +
+                "    amount=?,\n" +
+                "    used_flag=?,\n" +
+                "    safe_payment_flag=?,\n" +
+                "    exchange_flag=?,\n" +
+                "    contents =?\n" +
+                "WHERE product_id = ?";
+
+        Object[] params = new Object[]{
+                putProductReq.getName(),
+                putProductReq.getPrice(),
+                putProductReq.getCategoryId(),
+                putProductReq.getShippingFeeIncluded(),
+                putProductReq.getLocation(),
+                putProductReq.getAmount(),
+                putProductReq.getUsed(),
+                putProductReq.getSafePayment(),
+                putProductReq.getExchange(),
+                putProductReq.getContents(),
+                productId
+        };
+
+        this.jdbcTemplate.update(query,params);
+    }
+
+    public void deleteProductImage(List<String> deletedImageList) {
+        String query ="UPDATE product_image SET status = 'N'\n";
+
+        String imageIds = "";
+        for (int i = 0; i < deletedImageList.size(); i++) {
+            if (i != deletedImageList.size() - 1) {
+                imageIds += deletedImageList.get(i) + ", ";
+            } else {
+                imageIds += deletedImageList.get(i);
+            }
+        }
+
+        query+="WHERE product_image_id in ("+imageIds+")";
+
+        this.jdbcTemplate.update(query);
+    }
+
+    /** 제거된 상품-태그 삭제 **/
+    public int deleteProductTags(int productId, List<Integer> tagIds) {
+        String query = "UPDATE product_tag SET status='N'\n" +
+                "WHERE product_id =?"+
+                "\nAND tag_id NOT IN (";
+
+
+        for (int i = 0; i < tagIds.size(); i++) {
+            if (i != tagIds.size() - 1) {
+                query += tagIds.get(i) + ", ";
+            } else {
+                query += tagIds.get(i) + ")";
+            }
+
+        }
+
+        return this.jdbcTemplate.update(query, productId);
+    }
+
+    public int deleteAllProductTags(int productId) {
+        String query = "UPDATE product_tag SET status='N'\n" +
+                "WHERE product_id =?";
+
+        return this.jdbcTemplate.update(query, productId);
     }
 }
