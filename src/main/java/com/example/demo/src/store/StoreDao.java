@@ -320,6 +320,22 @@ public class StoreDao {
                 userId);
     }
 
+    /** 본인인증 정보 조회 **/
+    public GetAuthenticationRes selectUserAuthentication(int storeId){
+        String query = "SELECT profile_image_url, store_name, authentication_flag, CONCAT('*',MID(account_holder,2,1),'*') AS name " +
+                        "FROM store " +
+                        "LEFT JOIN account a ON store.user_id = a.user_id " +
+                        "WHERE store.user_id = ? " +
+                        "LIMIT 1";
+        return this.jdbcTemplate.queryForObject(query,
+                (rs, rowNum) -> new GetAuthenticationRes(
+                        rs.getString("profile_image_url"),
+                        rs.getString("store_name"),
+                        rs.getString("authentication_flag"),
+                        rs.getString("name")),
+                storeId);
+    }
+
     // Update SQL
     /** 상점 소개 수정 **/
     public int updateStoreProfile(int userId, PatchStoreProfileReq storeProfile){

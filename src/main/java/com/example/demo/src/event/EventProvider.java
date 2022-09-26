@@ -2,6 +2,7 @@ package com.example.demo.src.event;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.src.event.model.GetEventListRes;
+import com.example.demo.src.event.model.GetNoticeRes;
 import com.example.demo.utils.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,16 @@ public class EventProvider {
         try {
             //홈 화면 이벤트 리스트 조회
             return eventDao.getEventList();
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /** 공지 목록 조회 **/
+    public List<GetNoticeRes> getNotices() throws BaseException {
+        try {
+            // 공지 목록 조회
+            return eventDao.selectNotices();
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }

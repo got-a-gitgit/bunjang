@@ -259,6 +259,19 @@ public class StoreController {
         return new BaseResponse<>(DELETE_SUCCESS);
     }
 
+    /**
+     * 본인인증 정보 조회 API
+     * [GET] /stores/{store-id}/authentication
+     * @return BaseResponse<GetAuthenticationRes>
+     */
+    @ResponseBody
+    @GetMapping ("/{store-id}/authentication")
+    public BaseResponse<GetAuthenticationRes> getUserAuthentication(@PathVariable("store-id")int storeId) throws BaseException {
+
+        GetAuthenticationRes result = storeProvider.getUserAuthentication(storeId);
+
+        return new BaseResponse<>(result);
+    }
 
 }
 
