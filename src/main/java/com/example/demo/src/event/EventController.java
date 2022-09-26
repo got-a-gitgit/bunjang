@@ -3,6 +3,7 @@ package com.example.demo.src.event;
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
 import com.example.demo.src.event.model.GetEventListRes;
+import com.example.demo.src.event.model.GetNoticeRes;
 import com.example.demo.src.product.model.GetRecommendedProductListRes;
 import com.example.demo.utils.JwtService;
 import com.example.demo.utils.S3Service;
@@ -48,4 +49,17 @@ public class EventController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
+    /**
+     * My탭 공지 목록 조회 API
+     * [GET] /events/notices
+     * @return BaseResponse<List<GetNoticeRes>>
+     */
+    @ResponseBody
+    @GetMapping("/notices")
+    public BaseResponse<List<GetNoticeRes>> getNotices() throws BaseException {
+        List<GetNoticeRes> getEventListRes = eventProvider.getNotices();
+        return new BaseResponse<>(getEventListRes);
+    }
+
 }
