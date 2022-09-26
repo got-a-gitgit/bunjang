@@ -33,6 +33,7 @@ public class EventProvider {
             //홈 화면 이벤트 리스트 조회
             return eventDao.getEventList();
         } catch (Exception exception) {
+            logger.error("GetEventList Error", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -43,6 +44,7 @@ public class EventProvider {
             // 공지 목록 조회
             return eventDao.selectNotices();
         } catch (Exception exception) {
+            logger.error("GetNotices Error", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
