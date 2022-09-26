@@ -44,10 +44,14 @@ public class ProductController {
      */
     @ResponseBody
     @PostMapping("")
-    public BaseResponse<PostProductRes> createProduct(@ModelAttribute @Valid PostProductReq postProductReq) throws BaseException, BindException {
+    public BaseResponse<PostProductRes> createProduct(@ModelAttribute @Valid PostProductReqAsString postProductReqAsString) throws BaseException, BindException {
 
         //jwt 인증
         int userId= jwtService.getUserId();
+
+        //String -> Integer
+        //Validation
+        PostProductReq postProductReq = productService.validateRequest(postProductReqAsString);
         postProductReq.setUserId(userId);
 
         List<MultipartFile> images= postProductReq.getImages();
