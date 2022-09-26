@@ -5,7 +5,6 @@ import com.example.demo.config.BaseResponse;
 import com.example.demo.src.chat.model.GetChatroomListRes;
 import com.example.demo.src.chat.model.GetChatroomRes;
 import com.example.demo.src.chat.model.PostSendMessageReq;
-import com.example.demo.src.product.model.GetProductRes;
 import com.example.demo.utils.JwtService;
 import com.example.demo.utils.S3Service;
 import lombok.AllArgsConstructor;
@@ -14,7 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.util.List;
+
 
 import static com.example.demo.config.BaseResponseStatus.*;
 
@@ -74,8 +75,6 @@ public class ChatController {
         }
 
     }
-
-
     /**
      * 채팅방 목록 조회 API
      * [GET] /chats
