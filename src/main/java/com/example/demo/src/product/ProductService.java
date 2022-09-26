@@ -108,7 +108,7 @@ public class ProductService {
             }
             //태그 등록
             List<Integer> tagIds=null;
-            if (putProductReq.getDeletedImageList()!=null && putProductReq.getTags().size()!=0) {
+            if (putProductReq.getTags()!=null && putProductReq.getTags().size()!=0) {
                  tagIds= productDao.createTags(putProductReq.getTags());
             }
             
@@ -153,7 +153,7 @@ public class ProductService {
 
             return postProductReq;
         } catch (Exception exception) {
-            logger.error("updateProduct 에러", exception);
+            logger.error("validateRequest 에러", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
