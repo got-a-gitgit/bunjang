@@ -33,14 +33,14 @@ public class EventDao {
 
     /** 공지 목록 조회 **/
     public List<GetNoticeRes> selectNotices() {
-        String query = "SELECT event_id, type, content, url " +
+        String query = "SELECT event_id, type, contents, url " +
                 "FROM event " +
                 "WHERE status = 'Y' AND type <> '배너'" ;
         return jdbcTemplate.query(query,
                 (rs,rowNum)->new GetNoticeRes(
                         rs.getInt("event_id"),
                         rs.getString("type"),
-                        rs.getString("content"),
+                        rs.getString("contents"),
                         rs.getString("url")
                 ));
     }
