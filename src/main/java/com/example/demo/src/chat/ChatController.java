@@ -56,7 +56,7 @@ public class ChatController {
 
     /**
      * 채팅방 나가기 API
-     * [DELETE] /chatrooms/:chatroom-id
+     * [DELETE] /chats/:chatroom-id
      * @return BaseResponse<String>
      */
     //Path-variable
