@@ -185,7 +185,7 @@ public class ProductDao {
         String query = "SELECT product_image_id, url\n" +
                 "FROM product p\n" +
                 "JOIN product_image pi on p.product_id = pi.product_id\n" +
-                "WHERE p.product_id = ?";
+                "WHERE p.product_id = ? AND pi.status='Y'";
 
         return this.jdbcTemplate.query(query,
                 (rs,rowNum)-> new ProductImage(
@@ -200,7 +200,7 @@ public class ProductDao {
                 "FROM product p\n" +
                 "JOIN product_tag pt on p.product_id = pt.product_id\n" +
                 "JOIN tag t on t.tag_id = pt.tag_id\n" +
-                "WHERE p.product_id = ?";
+                "WHERE p.product_id = ? AND pt.tag_id='Y'";
 
         return this.jdbcTemplate.query(query,
                 (rs,rowNum)-> new String(
@@ -235,7 +235,7 @@ public class ProductDao {
                 "         LEFT JOIN (SELECT url, MIN(product_image_id), product_id\n" +
                 "               FROM product_image\n" +
                 "               GROUP BY product_id) pi on p.product_id = pi.product_id\n" +
-                "WHERE p.user_id = ? AND p.status!='D' AND (p.updated_at<? OR (p.updated_at=? AND p.product_id>?))\n"+
+                "WHERE p.user_id = ? AND p.status!='D' AND (p.updated_at<? OR (p.updated_at=? AND p.product_id<?))\n"+
                 "order by p.updated_at DESC, p.product_id DESC\n" +
                 "LIMIT ?";
 
