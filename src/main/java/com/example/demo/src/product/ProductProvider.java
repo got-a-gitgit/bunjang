@@ -149,6 +149,23 @@ public class ProductProvider {
         }
     }
 
+    /** 최상위 카테고리 목록 조회**/
+    public GetCategoryListRes getMainCategoryList() throws BaseException {
+        try {
+            // 최상위 카테고리 목록 조회
+            List<Category> subcategoryList = productDao.getMainCategoryList();
+
+            //불러온 값이 없으면 예외 발생
+            if(subcategoryList.size()==0) throw new BaseException(NO_MORE_SUBCATEGORY);
+
+            return new GetCategoryListRes(0, subcategoryList);
+        } catch (BaseException baseException) {
+            throw baseException;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
     /** 상품 찜한 사람 목록 조회**/
     public List<GetWisherListRes> getWisherList(int productId) throws BaseException {
         try {

@@ -156,7 +156,7 @@ public class ProductController {
     }
 
     /**
-     * 하위 카테고리 목록 조회 API
+     * 카테고리 목록 조회 API
      * [GET] /products/category?category-id={}
      * @return BaseResponse<>
      */
@@ -167,14 +167,18 @@ public class ProductController {
         int userId= jwtService.getUserId();
 
         try{
-            //추천 상품 조회
+            if (categoryId == 0){   // 대분류 카테고리 조회
+                GetCategoryListRes getCategoryListRes = productProvider.getMainCategoryList();
+                return new BaseResponse<>(getCategoryListRes);
+            }
+            // 그 외 카테고리 조회
             GetCategoryListRes getCategoryListRes = productProvider.getCategoryList(categoryId);
             return new BaseResponse<>(getCategoryListRes);
+
         } catch(BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
     }
-
 
     /**
      * 상품 상태 변경 API
