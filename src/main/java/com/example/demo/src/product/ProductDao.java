@@ -200,7 +200,7 @@ public class ProductDao {
                 "FROM product p\n" +
                 "JOIN product_tag pt on p.product_id = pt.product_id\n" +
                 "JOIN tag t on t.tag_id = pt.tag_id\n" +
-                "WHERE p.product_id = ? AND pt.tag_status='Y'";
+                "WHERE p.product_id = ? AND pt.status='Y'";
 
         return this.jdbcTemplate.query(query,
                 (rs,rowNum)-> new String(
