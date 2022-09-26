@@ -23,7 +23,7 @@ public class ChatDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-
+    /** 채팅방 존재 유무 체크 **/
     public int checkChatroom(int userId, int productId) {
         String query = "SELECT c.room_id as room_id\n" +
                 "FROM chatroom c\n" +
@@ -39,6 +39,7 @@ public class ChatDao {
         }
     }
 
+    /** 메세지 보내기 **/
     public int sendMessage(int userId, int chatroomId, PostSendMessageReq postSendMessageReq) {
         String query = "INSERT INTO chat_message(room_id, user_id, message, message_type) VALUES(?,?,?,?)";
         Object[] params = new Object[]{chatroomId, userId, postSendMessageReq.getMessage(), postSendMessageReq.getMessageType()};
@@ -46,6 +47,7 @@ public class ChatDao {
         return jdbcTemplate.update(query, params);
     }
 
+    /** 채팅방 생성하기 **/
     public int createChatroom(int productId) {
         String query = "INSERT INTO chatroom(product_id) VALUE (?)";
         jdbcTemplate.update(query, productId);
@@ -54,6 +56,7 @@ public class ChatDao {
         return this.jdbcTemplate.queryForObject(lastInserIdQuery,int.class);
     }
 
+    /** 채팅방 들어가기 **/
     public void joinChatroom(int userId, int chatroomId) {
         String query = "INSERT INTO user_chatroom(user_id, room_id) VALUES (?,?)";
         Object[] params = new Object[]{userId, chatroomId};
@@ -61,17 +64,20 @@ public class ChatDao {
         jdbcTemplate.update(query, params);
     }
 
+    /** 채팅 활성화 하기 **/
     public void activateChatroom(int chatroomId) {
         String query ="UPDATE user_chatroom SET status='Y' WHERE room_id=?";
         jdbcTemplate.update(query, chatroomId);
     }
 
+    /** 채팅방 나가기 **/
     public void leaveChatroom(int userId, int chatroomId) {
         String query ="UPDATE user_chatroom SET status='N' WHERE user_id=? AND room_id=?";
         Object[] params = new Object[]{userId, chatroomId};
         jdbcTemplate.update(query, params);
     }
 
+    /** 채팅방 목록 불러오기 **/
     public List<GetChatroomListRes> getChatroomList(int userId) {
         String query = "SELECT c.room_id     as room_id,\n" +
                 "       s.profile_image_url,\n" +
@@ -106,6 +112,7 @@ public class ChatDao {
                 ), params);
     }
 
+    /** 채팅방 상세 조회 **/
     public GetChatroomRes getChatroom(int userId, int chatroomId) {
         String query = "SELECT s.store_name, s.user_id, p.product_id, p.name, p.price, s.profile_image_url\n" +
                 "FROM store s\n" +
@@ -128,6 +135,7 @@ public class ChatDao {
                 ),params);
     }
 
+    /** 메세지 목록 조회 **/
     public List<Message> getMessageList(int chatroomId) {
         String query = "SELECT user_id, message, message_type, updated_at as written_at\n" +
                 "FROM chat_message\n" +

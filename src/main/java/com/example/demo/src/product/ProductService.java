@@ -34,9 +34,7 @@ public class ProductService {
     }
 
 
-    /**
-     * 상품 등록
-     **/
+    /** 상품 등록 **/
     public PostProductRes createProduct(PostProductReq postProductReq, List<String> productImages) throws BaseException {
         try {
             //상품 등록
@@ -63,9 +61,7 @@ public class ProductService {
         }
     }
 
-    /**
-     * 상품 삭제
-     **/
+    /** 상품 삭제 **/
     public void deleteProduct(int productId) throws BaseException {
         try {
             //상품 삭제
@@ -81,9 +77,7 @@ public class ProductService {
         }
     }
 
-    /**
-     * 조회수 증가
-     **/
+    /** 조회수 증가 **/
     public void increaseProductView(int productId) throws BaseException {
         try {
             //상품 조회수 1증가
@@ -94,9 +88,7 @@ public class ProductService {
         }
     }
 
-    /**
-     * 상품 판매 상태 변경
-     **/
+    /** 상품 판매 상태 변경 **/
     public FetchProductStatusRes updateProductStatus(int productId, String status) throws BaseException {
         try {
             productDao.updateStatus(productId, status);
@@ -107,9 +99,7 @@ public class ProductService {
         }
     }
 
-    /**
-     * 상품 수정
-     **/
+    /** 상품 수정 **/
     public void updateProduct(int productId, PutProductReq putProductReq, List<String> productImages) throws BaseException {
         try {
             //상품 이미지 삭제

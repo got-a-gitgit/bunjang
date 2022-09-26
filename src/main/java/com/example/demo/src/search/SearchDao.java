@@ -18,6 +18,7 @@ public class SearchDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    /** 카테고리별 상품 목록 조회 **/
     public List<SearchProduct> getSearchByCategory(int userId, int categoryId, String safePayment, Integer priceFrom, Integer priceTo, String soldOutIncluded,
                                                    String shippingFeeIncluded, String usded, String exchange, String sort, String keyword) {
 
