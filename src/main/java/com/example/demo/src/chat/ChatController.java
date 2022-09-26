@@ -2,6 +2,8 @@ package com.example.demo.src.chat;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
+import com.example.demo.src.chat.model.GetChatroomListRes;
+import com.example.demo.src.chat.model.GetChatroomRes;
 import com.example.demo.src.chat.model.PostSendMessageReq;
 import com.example.demo.utils.JwtService;
 import com.example.demo.utils.S3Service;
@@ -10,6 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+
+import java.util.List;
+
 
 import static com.example.demo.config.BaseResponseStatus.*;
 
@@ -69,4 +75,44 @@ public class ChatController {
         }
 
     }
+    /**
+     * 채팅방 목록 조회 API
+     * [GET] /chats
+     * @return BaseResponse<List<GetChatRoomsRes>>
+     */
+    @ResponseBody
+    @GetMapping("")
+    public BaseResponse<List<GetChatroomListRes>> getChatroomList() {
+        try{
+            //jwt에서 id 추출.
+            int userId = jwtService.getUserId();
+
+            // Get chatroom list
+            List<GetChatroomListRes> getChatroomListRes = chatProvider.getChatroomList(userId);
+            return new BaseResponse<>(getChatroomListRes);
+        } catch(BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    /**
+     * 채팅방 상세조회 API
+     * [GET] /chats/:chatroom-id
+     * @return BaseResponse<GetChatroomRes>
+     */
+    @ResponseBody
+    @GetMapping("/{chatroom-id}")
+    public BaseResponse<GetChatroomRes> getChatroom(@PathVariable("chatroom-id") int chatroomId) {
+        try{
+            //jwt에서 id 추출.
+            int userId = jwtService.getUserId();
+
+            GetChatroomRes getChatRoomRes = chatProvider.getChatroom(userId, chatroomId);
+            return new BaseResponse<>(getChatRoomRes);
+        } catch(BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+
+    }
+
 }
