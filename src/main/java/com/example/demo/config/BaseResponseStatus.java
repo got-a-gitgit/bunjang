@@ -62,6 +62,7 @@ public enum BaseResponseStatus {
     EXCEEDED_ACCOUNT(false, 425, "최대 등록 가능한 계좌는 2개입니다."),
     FAIL_GET_ACCOUNTS(false, 426, "계좌 목록 조회에 실패했습니다."),
     FAIL_DELETE_ACCOUNT(false, 427, "계좌 삭제에 실패했습니다."),
+    FAIL_GET_USER_AUTHENTICATION(false, 428, "본인인증 정보 조회에 실패했습니다."),
 
 
     // 451-499 조이
