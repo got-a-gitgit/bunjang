@@ -70,6 +70,8 @@ public enum BaseResponseStatus {
     NON_EXISTENT_PRODUCT(false, 453, "존재하지 않는 상품입니다."),
     NO_MORE_SUBCATEGORY(false, 454, "하위 카테고리가 존재하지 않습니다."),
 
+    INVALID_AMOUNT(false, 455, "개수는 1개 이상이어야 합니다."),
+
     /**
      * 5XX : Server 에러
      */

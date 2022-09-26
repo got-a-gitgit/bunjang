@@ -144,4 +144,18 @@ public class ProductService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    /** 상품 등록 String field -> Integer 형변환 & validation**/
+    public PostProductReq validateRequest(PostProductReqAsString pprs) throws BaseException {
+        if(Integer.parseInt(pprs.getAmount())<1) throw new BaseException(INVALID_AMOUNT);
+
+        PostProductReq postProductReq = new PostProductReq(pprs.getImages(), pprs.getName(),
+                Integer.parseInt(pprs.getPrice()), Integer.parseInt(pprs.getCategoryId()),
+                pprs.getShippingFeeIncluded(), pprs.getLocation(),
+                Integer.parseInt(pprs.getAmount()), pprs.getUsed(),
+                pprs.getSafePayment(), pprs.getExchange(),
+                pprs.getContents(), pprs.getTags());
+
+        return postProductReq;
+    }
 }

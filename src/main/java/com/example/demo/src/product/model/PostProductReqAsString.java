@@ -15,20 +15,18 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostProductReq {
+public class PostProductReqAsString {
     @NotNull(message = "이미지가 입력되지 않았습니다.")
     private List<MultipartFile> images;
 
     @NotBlank(message = "제목이 입력되지 않았습니다.")
     private String name;
 
-    private Integer userId;
-
     @NotNull(message = "가격이 입력되지 않았습니다.")
-    private Integer price;
+    private String price;
 
     @NotNull(message = "카테고리가 입력되지 않았습니다.")
-    private Integer categoryId;
+    private String categoryId;
 
     @NotNull(message = "배송비 포함 여부가 입력되지 않았습니다.")
     private String shippingFeeIncluded;
@@ -37,8 +35,8 @@ public class PostProductReq {
     private String location;
 
     @NotNull(message = "개수가 입력되지 않았습니다.")
-    @Min(value=1, message = "개수는 1개 이상이어야 합니다.")
-    private Integer amount;
+//    @Min(value=1, message = "개수는 1개 이상이어야 합니다.")
+    private String amount;
 
     @NotNull(message = "상품의 사용여부가 입력되지 않았습니다.")
     private String used;
@@ -53,19 +51,4 @@ public class PostProductReq {
     private String contents;
 
     private List<String> tags;
-
-    public PostProductReq(List<MultipartFile> images, String name, Integer price, Integer categoryId, String shippingFeeIncluded, String location, Integer amount, String used, String safePayment, String exchange, String contents, List<String> tags) {
-        this.images = images;
-        this.name = name;
-        this.price = price;
-        this.categoryId = categoryId;
-        this.shippingFeeIncluded = shippingFeeIncluded;
-        this.location = location;
-        this.amount = amount;
-        this.used = used;
-        this.safePayment = safePayment;
-        this.exchange = exchange;
-        this.contents = contents;
-        this.tags = tags;
-    }
 }
