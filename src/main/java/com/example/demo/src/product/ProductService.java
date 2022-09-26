@@ -43,13 +43,19 @@ public class ProductService {
             int productId = productDao.createProduct(postProductReq);
 
             //태그 등록
-            List<Integer> tagIds = productDao.createTags(postProductReq.getTags());
-
+            List<Integer> tagIds=null;
+            List<String> tags = postProductReq.getTags();
+            if (tags!=null && tags.size()!=0) {
+                tagIds= productDao.createTags(postProductReq.getTags());
+            }
             //상품-태그 등록
-            int updatedRowsNumber = productDao.createProductTags(productId, tagIds);
+            if (tagIds != null) {
+                int updatedRowsNumber = productDao.createProductTags(productId, tagIds);
+            }
 
             //상품 이미지 등록
             int updatedImagesNum = productDao.createProductImages(productId, productImages);
+
 
             return new PostProductRes(productId);
         } catch (Exception exception) {
