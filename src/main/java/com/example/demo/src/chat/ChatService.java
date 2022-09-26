@@ -30,6 +30,7 @@ public class ChatService {
         this.jwtService = jwtService;
     }
 
+    /** 채팅 시작하기 & 메세지 보내기 **/
     public void sendMessage(int userId, PostSendMessageReq postSendMessageReq) throws BaseException {
         try{
             int productId = postSendMessageReq.getProductId();
@@ -57,6 +58,7 @@ public class ChatService {
         }
     }
 
+    /** 채팅방 나가기 **/
     public void leaveChatroom(int userId, int chatroomId) throws BaseException {
         try{
             chatDao.leaveChatroom(userId, chatroomId);

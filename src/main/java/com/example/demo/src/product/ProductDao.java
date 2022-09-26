@@ -438,6 +438,7 @@ public class ProductDao {
                 params);
     }
 
+    /** 카테고리 리스트 조회 **/
     public List<Category> getCategoryList(int categoryId) {
         String query = "SELECT category_id, " +
                 "name, " +
@@ -471,6 +472,7 @@ public class ProductDao {
 
     }
 
+    /** 상품 판매 상태 변경 **/
     public void updateStatus(int productId, String status) {
         String query = "UPDATE product SET status=? WHERE product_id=?";
         Object[] params = new Object[]{status, productId};
@@ -479,6 +481,7 @@ public class ProductDao {
 
     }
 
+    /** 상품 찜한 사람 목록 조회 **/
     public List<GetWisherListRes> getWisherList(int productId) {
         String query = "SELECT w.user_id as user_id," +
                 " s.profile_image_url as profile_image_url," +
@@ -498,6 +501,7 @@ public class ProductDao {
                 ,productId);
     }
 
+    /** 상품 수정 **/
     public void updateProduct(int productId, PutProductReq putProductReq) {
         String query = "UPDATE product\n" +
                 "SET name=?,\n" +
@@ -529,6 +533,7 @@ public class ProductDao {
         this.jdbcTemplate.update(query,params);
     }
 
+    /** 상품 이미지 삭제 **/
     public void deleteProductImage(List<String> deletedImageList) {
         String query ="UPDATE product_image SET status = 'N'\n";
 
@@ -565,6 +570,7 @@ public class ProductDao {
         return this.jdbcTemplate.update(query, productId);
     }
 
+    /** 상품의 모든 태그 삭제 **/
     public int deleteAllProductTags(int productId) {
         String query = "UPDATE product_tag SET status='N'\n" +
                 "WHERE product_id =?";
