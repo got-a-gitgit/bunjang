@@ -52,6 +52,7 @@ public class ChatService {
             //메세지 보내기
             int affectedRows = chatDao.sendMessage(userId,chatroomId,postSendMessageReq);
         } catch(Exception exception){
+            logger.error("sendMessage 에러", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -60,6 +61,7 @@ public class ChatService {
         try{
             chatDao.leaveChatroom(userId, chatroomId);
         } catch(Exception exception){
+            logger.error("leaveChatroom 에러", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }

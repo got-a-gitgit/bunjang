@@ -32,6 +32,7 @@ public class SearchProvider {
         try {
             return searchDao.getSearchByCategory(userId, categoryId, safePayment, priceFrom, priceTo, soldOutIncluded, shippingFeeIncluded, usded, exchange, sort, keyword);
         } catch (Exception exception) {
+            logger.error("getSearchByCategory 에러", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }

@@ -46,8 +46,10 @@ public class ProductProvider {
 
             return getProductRes;
         } catch (BaseException baseException) {
+            logger.error("getProduct 에러", baseException);
             throw baseException;
         } catch (Exception exception) {
+            logger.error("getProduct 에러", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -91,6 +93,7 @@ public class ProductProvider {
             }
             return getStoreProductListRes;
         } catch (Exception exception) {
+            logger.error("getStoreProductListByStoreId 에러", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -128,6 +131,7 @@ public class ProductProvider {
 
             return getRecommendedProductListRes;
         } catch(Exception exception) {
+            logger.error("getProductList 에러", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -143,8 +147,10 @@ public class ProductProvider {
 
             return new GetCategoryListRes(categoryId, subcategoryList);
         } catch (BaseException baseException) {
+            logger.error("getCategoryList 에러", baseException);
             throw baseException;
         } catch (Exception exception) {
+            logger.error("getCategoryList 에러", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -160,8 +166,10 @@ public class ProductProvider {
 
             return new GetCategoryListRes(0, subcategoryList);
         } catch (BaseException baseException) {
+            logger.error("getMainCategoryList 에러", baseException);
             throw baseException;
         } catch (Exception exception) {
+            logger.error("getMainCategoryList 에러", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -171,6 +179,7 @@ public class ProductProvider {
         try {
             return productDao.getWisherList(productId);
         } catch (Exception exception) {
+            logger.error("getWisherList 에러", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
