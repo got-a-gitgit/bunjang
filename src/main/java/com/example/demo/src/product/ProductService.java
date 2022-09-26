@@ -56,9 +56,9 @@ public class ProductService {
             //상품 이미지 등록
             int updatedImagesNum = productDao.createProductImages(productId, productImages);
 
-
             return new PostProductRes(productId);
         } catch (Exception exception) {
+            logger.error("createProduct 에러", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -76,6 +76,7 @@ public class ProductService {
         } catch (BaseException baseException) {
             throw baseException;
         } catch (Exception exception) {
+            logger.error("deleteProduct 에러", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -88,6 +89,7 @@ public class ProductService {
             //상품 조회수 1증가
             productDao.increaseProductView(productId);
         } catch (Exception exception) {
+            logger.error("increaseProductView 에러", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -100,6 +102,7 @@ public class ProductService {
             productDao.updateStatus(productId, status);
             return new FetchProductStatusRes(productId, status);
         } catch (Exception exception) {
+            logger.error("updateProductStatus 에러", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -141,6 +144,7 @@ public class ProductService {
             productDao.updateProduct(productId, putProductReq);
 
         } catch (Exception exception) {
+            logger.error("updateProduct 에러", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -149,13 +153,18 @@ public class ProductService {
     public PostProductReq validateRequest(PostProductReqAsString pprs) throws BaseException {
         if(Integer.parseInt(pprs.getAmount())<1) throw new BaseException(INVALID_AMOUNT);
 
-        PostProductReq postProductReq = new PostProductReq(pprs.getImages(), pprs.getName(),
-                Integer.parseInt(pprs.getPrice()), Integer.parseInt(pprs.getCategoryId()),
-                pprs.getShippingFeeIncluded(), pprs.getLocation(),
-                Integer.parseInt(pprs.getAmount()), pprs.getUsed(),
-                pprs.getSafePayment(), pprs.getExchange(),
-                pprs.getContents(), pprs.getTags());
+        try {
+            PostProductReq postProductReq = new PostProductReq(pprs.getImages(), pprs.getName(),
+                    Integer.parseInt(pprs.getPrice()), Integer.parseInt(pprs.getCategoryId()),
+                    pprs.getShippingFeeIncluded(), pprs.getLocation(),
+                    Integer.parseInt(pprs.getAmount()), pprs.getUsed(),
+                    pprs.getSafePayment(), pprs.getExchange(),
+                    pprs.getContents(), pprs.getTags());
 
-        return postProductReq;
+            return postProductReq;
+        } catch (Exception exception) {
+            logger.error("updateProduct 에러", exception);
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 }

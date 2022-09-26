@@ -33,6 +33,7 @@ public class ChatProvider {
             return chatDao.getChatroomList(userId);
         }
         catch (Exception exception) {
+            logger.error("getChatroomList 에러", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -46,6 +47,7 @@ public class ChatProvider {
 
             return getChatroomRes;
         } catch (Exception exception) {
+            logger.error("getChatroom 에러", exception);
             throw new BaseException(DATABASE_ERROR);
         }
     }
