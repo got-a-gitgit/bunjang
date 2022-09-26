@@ -68,15 +68,15 @@ public class ProductProvider {
             } else {
                 //첫 조회와 무한스크롤 구분
                 if (lastProductId == -1) {
-                    productList = productDao.getFirstProductListByStoreId(userId, storeId, size);
+                    productList = productDao.getFirstProductListByStoreId(userId, storeId, size+1);
                 } else {
-                    productList = productDao.getProductListByStoreId(userId, storeId, lastUpdatedAt, lastProductId,size);
+                    productList = productDao.getProductListByStoreId(userId, storeId, lastUpdatedAt, lastProductId,size+1);
                 }
 
                 //다음 페이지 존재 여부 입력
-                if (productList.size() == 21) {
+                if (productList.size() == size+1) {
                     getStoreProductListRes.setHasNextPage(true);
-                    getStoreProductListRes.setProductList(productList.subList(0, 20));
+                    getStoreProductListRes.setProductList(productList.subList(0, size));
                 } else {
                     getStoreProductListRes.setHasNextPage(false);
                     getStoreProductListRes.setProductList(productList);
