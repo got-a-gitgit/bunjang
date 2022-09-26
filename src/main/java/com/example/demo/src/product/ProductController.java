@@ -101,10 +101,10 @@ public class ProductController {
 
 
         try{
-            //상품 조회수 증가
-            productService.increaseProductView(productId);
             //상품 조회
             GetProductRes getProductRes = productProvider.getProduct(productId);
+            //상품 조회수 증가
+            productService.increaseProductView(productId);
             return new BaseResponse<>(getProductRes);
         } catch(BaseException exception){
             return new BaseResponse<>(exception.getStatus());
@@ -220,4 +220,31 @@ public class ProductController {
         }
     }
 
+    /**
+     * 상품 수정 API
+     * [PUT] /products/:product-id
+     * @return BaseResponse
+     */
+    @ResponseBody
+    @PutMapping("/{product-id}")
+    public BaseResponse<PutProductRes> updateProduct(@PathVariable("product-id")int productId, @ModelAttribute @Valid PutProductReq putProductReq) throws BaseException {
+        //jwt 인증
+        int userId= jwtService.getUserId();
+
+        List<MultipartFile> images= putProductReq.getNewImages();
+
+        //S3에 이미지 업로드 및 url 반환
+        List<String> imageUrls=null;
+        if (images!=null && !images.get(0).isEmpty()) {
+             imageUrls= s3Service.uploadImage(images);
+        }
+
+        try{
+            productService.updateProduct(productId,putProductReq, imageUrls);
+            PutProductRes putProductRes = new PutProductRes(productId, userId);
+            return new BaseResponse<>(putProductRes, UPDATE_SUCCESS);
+        } catch(BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 }

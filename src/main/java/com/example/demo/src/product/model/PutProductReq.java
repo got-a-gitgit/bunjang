@@ -15,14 +15,14 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostProductReq {
-    @NotNull(message = "이미지가 입력되지 않았습니다.")
-    private List<MultipartFile> images;
+public class PutProductReq {
+
+    private List<String> deletedImageList;
+
+    private List<MultipartFile> newImages;
 
     @NotBlank(message = "제목이 입력되지 않았습니다.")
     private String name;
-
-    private Integer userId;
 
     @NotNull(message = "가격이 입력되지 않았습니다.")
     private Integer price;
