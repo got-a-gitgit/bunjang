@@ -76,7 +76,7 @@ public class ProductProvider {
                 //다음 페이지 존재 여부 입력
                 if (productList.size() == size+1) {
                     getStoreProductListRes.setHasNextPage(true);
-                    getStoreProductListRes.setProductList(productList.subList(0, size));
+                    getStoreProductListRes.setProductList(productList.subList(0, productList.size()));
                 } else {
                     getStoreProductListRes.setHasNextPage(false);
                     getStoreProductListRes.setProductList(productList);
